@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class JdbcPhoneDao implements PhoneDao{
+public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
     @Resource
@@ -31,13 +31,13 @@ public class JdbcPhoneDao implements PhoneDao{
                         "backCameraMegapixels, frontCameraMegapixels, ramGb, internalStorageGb, batteryCapacityMah, " +
                         "talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description) " +
                         "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        phone.getId(), phone.getBrand(), phone.getModel(), phone.getPrice(), phone.getDisplaySizeInches(),
-                        phone.getWeightGr(), phone.getLengthMm(), phone.getWidthMm(), phone.getHeightMm(),
-                        phone.getAnnounced(), phone.getDeviceType(), phone.getOs(), phone.getDisplayResolution(),
-                        phone.getPixelDensity(), phone.getDisplayTechnology(), phone.getBackCameraMegapixels(),
-                        phone.getFrontCameraMegapixels(), phone.getRamGb(), phone.getInternalStorageGb(),
-                        phone.getBatteryCapacityMah(), phone.getTalkTimeHours(), phone.getStandByTimeHours(),
-                        phone.getBluetooth(), phone.getPositioning(), phone.getImageUrl(), phone.getDescription());
+                phone.getId(), phone.getBrand(), phone.getModel(), phone.getPrice(), phone.getDisplaySizeInches(),
+                phone.getWeightGr(), phone.getLengthMm(), phone.getWidthMm(), phone.getHeightMm(),
+                phone.getAnnounced(), phone.getDeviceType(), phone.getOs(), phone.getDisplayResolution(),
+                phone.getPixelDensity(), phone.getDisplayTechnology(), phone.getBackCameraMegapixels(),
+                phone.getFrontCameraMegapixels(), phone.getRamGb(), phone.getInternalStorageGb(),
+                phone.getBatteryCapacityMah(), phone.getTalkTimeHours(), phone.getStandByTimeHours(),
+                phone.getBluetooth(), phone.getPositioning(), phone.getImageUrl(), phone.getDescription());
     }
 
     public List<Phone> findAll(int offset, int limit) {
@@ -64,7 +64,7 @@ public class JdbcPhoneDao implements PhoneDao{
                 });
                 phone.setColors(colorSet);
             }
-            return (T)phone;
+            return (T) phone;
         }
     }
 
