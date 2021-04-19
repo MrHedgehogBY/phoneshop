@@ -1,5 +1,6 @@
 package com.es.core.model.phone;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,20 +18,27 @@ import java.util.Set;
 public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
+
     @Resource
     private JdbcColorDao jdbcColorDao;
 
+    private static final String SQL_SELECT_FOR_GET = "select * from phones where id = ";
+    private static final String SQL_INSERT_FOR_SAVE = "insert into phones (id, brand, model, price, " +
+            "displaySizeInches, weightGr, lengthMm, widthMm, heightMm, announced, deviceType, os, displayResolution, " +
+            "pixelDensity, displayTechnology, backCameraMegapixels, frontCameraMegapixels, ramGb, internalStorageGb, " +
+            "batteryCapacityMah, talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description) " +
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_SELECT_FOR_FIND_ALL = "select * from phones offset ";
+    private static final String SQL_LIMIT_FOR_FIND_ALL = " limit ";
+    private static final String SQL_SELECT_FOR_MAP_ROW = "select colorId from phone2color where phoneId = ";
+
     public Optional<Phone> get(final Long key) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject("select * from phones where id = " + key,
-                new CustomRowMapper<>(Phone.class)));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_FOR_GET + key,
+                new PhoneBeanPropertyRowMapper()));
     }
 
     public void save(final Phone phone) {
-        jdbcTemplate.update("insert into phones (id, brand, model, price, displaySizeInches, weightGr, lengthMm, " +
-                        "widthMm, heightMm, announced, deviceType, os, displayResolution, pixelDensity, displayTechnology, " +
-                        "backCameraMegapixels, frontCameraMegapixels, ramGb, internalStorageGb, batteryCapacityMah, " +
-                        "talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description) " +
-                        "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update(SQL_INSERT_FOR_SAVE,
                 phone.getId(), phone.getBrand(), phone.getModel(), phone.getPrice(), phone.getDisplaySizeInches(),
                 phone.getWeightGr(), phone.getLengthMm(), phone.getWidthMm(), phone.getHeightMm(),
                 phone.getAnnounced(), phone.getDeviceType(), phone.getOs(), phone.getDisplayResolution(),
@@ -40,31 +48,30 @@ public class JdbcPhoneDao implements PhoneDao {
                 phone.getBluetooth(), phone.getPositioning(), phone.getImageUrl(), phone.getDescription());
     }
 
-    public List<Phone> findAll(int offset, int limit) {
-        return jdbcTemplate.query("select * from phones offset " + offset + " limit " + limit,
-                new CustomRowMapper<>(Phone.class));
+    public List<Phone> findAll(final int offset, final int limit) {
+        return jdbcTemplate.query(SQL_SELECT_FOR_FIND_ALL + offset + SQL_LIMIT_FOR_FIND_ALL + limit,
+                new PhoneBeanPropertyRowMapper());
     }
 
-    private final class CustomRowMapper<T> extends BeanPropertyRowMapper<T> {
+    private final class PhoneBeanPropertyRowMapper extends BeanPropertyRowMapper<Phone> {
 
-        public CustomRowMapper(Class<T> mappedClass) {
-            this.initialize(mappedClass);
+        public PhoneBeanPropertyRowMapper() {
+            this.initialize(Phone.class);
         }
 
         @Override
-        public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
-            Phone phone = (Phone) super.mapRow(rs, rowNumber);
-            List<Long> colorIds = jdbcTemplate.query("select colorId from phone2color where phoneId = " +
-                    phone.getId(), new IdRowMapper());
-            if (!colorIds.isEmpty()) {
+        public Phone mapRow(ResultSet rs, int rowNumber) throws SQLException {
+            Phone phone = super.mapRow(rs, rowNumber);
+            List<Long> colorIds = jdbcTemplate.query(SQL_SELECT_FOR_MAP_ROW + phone.getId(), new IdRowMapper());
+            if (CollectionUtils.isNotEmpty(colorIds)) {
                 Set<Color> colorSet = new HashSet<>();
-                colorIds.forEach(id -> {
+                colorIds.stream().forEach(id -> {
                     Optional<Color> optionalColor = jdbcColorDao.get(id);
                     optionalColor.ifPresent(colorSet::add);
                 });
                 phone.setColors(colorSet);
             }
-            return (T) phone;
+            return phone;
         }
     }
 
