@@ -65,10 +65,10 @@ public class JdbcPhoneDao implements PhoneDao {
             List<Long> colorIds = jdbcTemplate.query(SQL_SELECT_FOR_MAP_ROW + phone.getId(), new IdRowMapper());
             if (CollectionUtils.isNotEmpty(colorIds)) {
                 Set<Color> colorSet = new HashSet<>();
-                colorIds.stream().forEach(id -> {
-                    Optional<Color> optionalColor = jdbcColorDao.get(id);
+                for (Long colorId : colorIds) {
+                    Optional<Color> optionalColor = jdbcColorDao.get(colorId);
                     optionalColor.ifPresent(colorSet::add);
-                });
+                }
                 phone.setColors(colorSet);
             }
             return phone;
