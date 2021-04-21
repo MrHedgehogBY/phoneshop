@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PhoneDao {
-    Optional<Phone> get(Long key);
-    void save(Phone phone);
-    List<Phone> findAll(int offset, int limit);
+    Optional<Phone> get(final Long key);
+    void save(final Phone phone);
+    List<Phone> findAll(final int offset, final int limit);
 }
