@@ -1,21 +1,37 @@
 package com.es.core.filter;
 
-import com.es.core.comparator.SortingComparator;
-import com.es.core.model.phone.Phone;
 import com.es.core.sortenum.SortField;
 import com.es.core.sortenum.SortOrder;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Stream;
 
 @Service
 public class FilterServiceImpl implements FilterService {
 
     @Override
-    public Stream<Phone> filterPhones(String sortField, String sortOrder, Stream<Phone> phoneStream) {
-        if (sortField != null && !sortField.isEmpty() && sortOrder != null && !sortOrder.isEmpty()) {
-            phoneStream = phoneStream.sorted(new SortingComparator(SortField.valueOf(sortField), SortOrder.valueOf(sortOrder)));
+    public String checkFieldValue(String field) {
+        if (field != null) {
+            try {
+                SortField sortField = SortField.valueOf(field);
+                return sortField.name();
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        } else {
+            return null;
         }
-        return phoneStream;
+    }
+
+    @Override
+    public String checkOrderValue(String order) {
+        if (order != null) {
+            try {
+                SortOrder sortOrder = SortOrder.valueOf(order);
+                return sortOrder.name();
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 }

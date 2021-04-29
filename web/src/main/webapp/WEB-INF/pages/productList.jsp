@@ -2,76 +2,85 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <head>
-    <title>Product list</title>
+    <title><spring:eval expression="@localizationEN.getProperty('title')" /></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/styles/main.css">
 </head>
 <body>
     <p>
-        Hello from product list!
+        <spring:eval expression="@localizationEN.getProperty('helloMessage')" />
     </p>
     <p>
-        Found
-        <c:out value="${phones.size()}"/> phones.
+        <spring:eval expression="@localizationEN.getProperty('found')" />
+        <c:out value="${phoneQuantity}"/> <spring:eval expression="@localizationEN.getProperty('phones')" />
     </p>
     <hr>
     <p>
     <div class="under-head">
         <form method="get">
             <input name="search" value="${not empty param.search ? param.search : ''}"/>
-            <button>Search</button>
+            <button><spring:eval expression="@localizationEN.getProperty('search')" /></button>
         </form>
         <div id="cart-div">
-            Cart: ${cart.totalQuantity} items ${cart.totalCost} $
+            <spring:eval expression="@localizationEN.getProperty('cart')" />
+            <c:out value="${cart.totalQuantity}"/>
+            <spring:eval expression="@localizationEN.getProperty('items')" />
+            <c:out value="${cart.totalCost}"/>
+            <spring:eval expression="@localizationEN.getProperty('usd')" />
         </div>
     </div>
     <div id="success-result">
     </div>
+    <div id="error-result">
+    </div>
+    <div id="ajax-errors">
+    </div>
     <table border="1px">
         <thead>
         <tr>
-            <td>Image</td>
+            <td><spring:eval expression="@localizationEN.getProperty('image')" /></td>
             <td>
-                Brand
+                <spring:eval expression="@localizationEN.getProperty('brand')" />
                 <tags:sortLink field="brand" order="asc"/>
                 <tags:sortLink field="brand" order="desc"/>
             </td>
             <td>
-                Model
+                <spring:eval expression="@localizationEN.getProperty('model')" />
                 <tags:sortLink field="model" order="asc"/>
                 <tags:sortLink field="model" order="desc"/>
             </td>
-            <td>Color</td>
+            <td><spring:eval expression="@localizationEN.getProperty('color')" /></td>
             <td>
-                Display size
-                <tags:sortLink field="displaySize" order="asc"/>
-                <tags:sortLink field="displaySize" order="desc"/>
+                <spring:eval expression="@localizationEN.getProperty('displaySize')" />
+                <tags:sortLink field="displaySizeInches" order="asc"/>
+                <tags:sortLink field="displaySizeInches" order="desc"/>
             </td>
             <td>
-                Price
+                <spring:eval expression="@localizationEN.getProperty('price')" />
                 <tags:sortLink field="price" order="asc"/>
                 <tags:sortLink field="price" order="desc"/>
             </td>
-            <td>Quantity</td>
-            <td>Action</td>
+            <td><spring:eval expression="@localizationEN.getProperty('quantity')" /></td>
+            <td><spring:eval expression="@localizationEN.getProperty('action')" /></td>
         </tr>
         </thead>
         <c:forEach var="phone" items="${phones}">
-            <form:form method="post" id="${phone.id}" modelAttribute="phoneDataHolder">
+            <form:form method="post" id="${phone.id}" modelAttribute="phoneDTO">
                 <tr>
                     <td>
                         <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}">
                     </td>
-                    <td>${phone.brand}</td>
-                    <td>${phone.model}</td>
+                    <td><c:out value="${phone.brand}"/></td>
+                    <td><c:out value="${phone.model}"/></td>
                     <td>
                         <c:forEach var="color" items="${phone.colors}">
-                            ${color.code}<br>
+                            <c:out value="${color.code}"/><br>
                         </c:forEach>
                     </td>
-                    <td>${phone.displaySizeInches}"</td>
-                    <td>$ ${phone.price}</td>
+                    <td><c:out value="${phone.displaySizeInches}"/>"</td>
+                    <td>$ <c:out value="${phone.price}"/></td>
                     <td>
                         <input class="quantity-input" type="text" id="quantity${phone.id}" name="quantity" value="1"/>
                         <div class="result-error" id="result${phone.id}">
@@ -81,7 +90,7 @@
                     </td>
                     <td>
                         <button>
-                            Add to cart
+                            <spring:eval expression="@localizationEN.getProperty('addToCart')" />
                         </button>
                     </td>
                 </tr>
@@ -90,8 +99,8 @@
     </table>
     </p>
     <div class="pages-links">
-        <a href="${pageContext.request.contextPath}/productList?field=${not empty param.field ? param.field : ''}&order=${not empty param.order ? param.order : ''}&search=${not empty param.search ? param.search : ''}&page=${empty param.page ? 1 : (param.page > 1 ? param.page - 1 : 1)}"><<< Previous page</a>
-        <a href="${pageContext.request.contextPath}/productList?field=${not empty param.field ? param.field : ''}&order=${not empty param.order ? param.order : ''}&search=${not empty param.search ? param.search : ''}&page=${empty param.page ? 2 : (param.page < pages ? param.page + 1 : pages)}">Next page >>></a>
+        <a href="${pageContext.request.contextPath}/productList?field=${not empty param.field ? param.field : null}&order=${not empty param.order ? param.order : null}&search=${not empty param.search ? param.search : null}&page=${empty param.page ? 1 : (param.page > 1 ? param.page - 1 : 1)}"><<< Previous page</a>
+        <a href="${pageContext.request.contextPath}/productList?field=${not empty param.field ? param.field : null}&order=${not empty param.order ? param.order : null}&search=${not empty param.search ? param.search : null}&page=${empty param.page ? 2 : (param.page < pages ? param.page + 1 : pages)}">Next page >>></a>
     </div>
 </body>
 
@@ -115,13 +124,16 @@
             type: 'POST',
             url: 'ajaxCart',
             data: 'id=' + id + '&quantity=' + quantity,
-            success: function () {
+            success: function (message) {
                 $('#result' + phoneId).text('');
-                $('cart-div').text('Cart: ${cart.totalQuantity} items')
+                $('#error-result').text('');
+                $('#ajax-errors').text('');
                 $('#success-result').text('Product added to cart successfully');
             },
-            error: function () {
+            error: function (message) {
                 $('#success-result').text('');
+                $('#error-result').text('Error ' + message.status + ' while adding to cart');
+                $('#ajax-errors').text(message.responseText);
                 $('#result' + phoneId).text('Wrong input');
             }
         });

@@ -13,7 +13,7 @@ public class Cart {
     public Cart() {
         cartItems = new ArrayList<>();
         totalQuantity = 0L;
-        totalCost = BigDecimal.valueOf(0L);
+        totalCost = BigDecimal.ZERO;
     }
 
     public List<CartItem> getCartItems() {

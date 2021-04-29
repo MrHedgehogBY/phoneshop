@@ -1,6 +1,6 @@
 package com.es.core.cart;
 
-public class PhoneDataHolder {
+public class PhoneDTO {
     private Long id;
     private Long quantity;
 

@@ -16,9 +16,7 @@ public class JdbcStockDao implements StockDao {
     private JdbcTemplate jdbcTemplate;
 
     private static final String SQL_SELECT_FOR_GET = "select * from stocks where phoneId = ";
-    private static final String SQL_UPDATE_1 = "update stocks set stock = ";
-    private static final String SQL_UPDATE_2 = ", reserved = ";
-    private static final String SQL_UPDATE_3 = " where phoneId = ";
+    private static final String SQL_UPDATE = "update stocks set stock = %d, reserved = %d where phoneId = %d";
 
     @Override
     public Optional<Stock> get(final Long key) {
@@ -33,6 +31,6 @@ public class JdbcStockDao implements StockDao {
 
     @Override
     public void update(final Long key, final Long stock, final Long reserved) {
-        jdbcTemplate.update(SQL_UPDATE_1 + stock + SQL_UPDATE_2 + reserved + SQL_UPDATE_3 + key);
+        jdbcTemplate.update(String.format(SQL_UPDATE, stock, reserved, key));
     }
 }

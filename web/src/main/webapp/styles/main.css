@@ -6,6 +6,14 @@
     color: red;
 }
 
+#error-result {
+    color: red;
+}
+
+#ajax-errors {
+    color: red;
+}
+
 .under-head {
     display: flex;
     flex-direction: row;
