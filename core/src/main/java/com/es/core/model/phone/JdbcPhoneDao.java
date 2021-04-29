@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.Optional;
 
 @Component
 public class JdbcPhoneDao implements PhoneDao {
@@ -28,9 +30,16 @@ public class JdbcPhoneDao implements PhoneDao {
             "pixelDensity, displayTechnology, backCameraMegapixels, frontCameraMegapixels, ramGb, internalStorageGb, " +
             "batteryCapacityMah, talkTimeHours, standByTimeHours, bluetooth, positioning, imageUrl, description) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_SELECT_FOR_FIND_ALL = "select * from phones offset ";
-    private static final String SQL_LIMIT_FOR_FIND_ALL = " limit ";
+    private static final String SQL_SELECT_FOR_FIND_ALL_SIMPLE = "select * from phones offset %d limit %d";
     private static final String SQL_SELECT_FOR_MAP_ROW = "select colorId from phone2color where phoneId = ";
+    private static final String SQL_SELECT_COUNT_FIND_ALL_EXTENDED = "select count(*) from phones ";
+    private static final String SQL_SELECT_FIND_ALL_EXTENDED = "select * from phones ";
+    private static final String SQL_WHERE_SEARCH = "where id in (select phoneId from stocks) and " +
+            "(select stock from stocks where phoneId = phones.id) > 0 and price is not null ";
+    private static final String SQL_WHERE_SEARCH_FIELD = "and lower(model) like lower(?) ";
+    private static final String SQL_ORDER_BY_FILTER = "group by phones.id order by %s %s ";
+    private static final String SQL_OFFSET_LIMIT = "offset %d limit %d";
+    private static final String SQL_ANY_CHAR_OR_EMPTY = "%";
 
     public Optional<Phone> get(final Long key) {
         return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_FOR_GET + key,
@@ -49,8 +58,38 @@ public class JdbcPhoneDao implements PhoneDao {
     }
 
     public List<Phone> findAll(final int offset, final int limit) {
-        return jdbcTemplate.query(SQL_SELECT_FOR_FIND_ALL + offset + SQL_LIMIT_FOR_FIND_ALL + limit,
+        return jdbcTemplate.query(String.format(SQL_SELECT_FOR_FIND_ALL_SIMPLE, offset, limit),
                 new PhoneBeanPropertyRowMapper());
+    }
+
+    public List<Phone> findAll(final String search, final String sortField, final String order,
+                               final int offset, final int limit) {
+        String request = SQL_SELECT_FIND_ALL_EXTENDED + SQL_WHERE_SEARCH;
+        List<Object> objects = new ArrayList<>();
+        List<Integer> types = new ArrayList<>();
+        if (search != null) {
+            request = request + SQL_WHERE_SEARCH_FIELD;
+            objects.add(SQL_ANY_CHAR_OR_EMPTY + search + SQL_ANY_CHAR_OR_EMPTY);
+            types.add(Types.VARCHAR);
+        }
+        if (sortField != null && order != null) {
+            request = request + String.format(SQL_ORDER_BY_FILTER, sortField, order);
+        }
+        request = request + String.format(SQL_OFFSET_LIMIT, offset, limit);
+        int[] typesArray = types.stream().mapToInt(i -> i).toArray();
+        return jdbcTemplate.query(request, objects.toArray(), typesArray, new PhoneBeanPropertyRowMapper());
+    }
+
+    public Long count(final String search, final String sortField, final String order,
+                      final int offset, final int limit) {
+        String request = SQL_SELECT_COUNT_FIND_ALL_EXTENDED + SQL_WHERE_SEARCH;
+        if (search != null) {
+            request = request + SQL_WHERE_SEARCH_FIELD;
+            return jdbcTemplate.queryForObject(request, new Object[]{SQL_ANY_CHAR_OR_EMPTY + search +
+                    SQL_ANY_CHAR_OR_EMPTY}, new int[]{Types.VARCHAR}, Long.class);
+        } else {
+            return jdbcTemplate.queryForObject(request, Long.class);
+        }
     }
 
     private final class PhoneBeanPropertyRowMapper extends BeanPropertyRowMapper<Phone> {

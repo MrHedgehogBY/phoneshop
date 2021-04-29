@@ -1,0 +1,33 @@
+#success-result {
+    color: green;
+}
+
+.result-error {
+    color: red;
+}
+
+#error-result {
+    color: red;
+}
+
+#ajax-errors {
+    color: red;
+}
+
+.under-head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.pages-links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#cart-div {
+    border-width: 4px;
+    border-color: black;
+    border-radius: 3px;
+}
