@@ -5,7 +5,9 @@ import com.es.core.cart.CartService;
 import com.es.core.cart.PhoneDTO;
 import com.es.core.exception.EmptyDatabaseArgumentException;
 import com.es.core.exception.OutOfStockException;
+import com.es.core.validator.Errors;
 import com.es.core.validator.ResponseErrors;
+import com.es.core.validator.ValidationErrors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -32,12 +34,11 @@ public class AjaxCartController {
     private HttpSession httpSession;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<ResponseErrors> addPhone(@Validated @ModelAttribute(name = "phoneDTO") PhoneDTO phoneDTO,
-                                                   BindingResult bindingResult)
-            throws OutOfStockException, EmptyDatabaseArgumentException {
+    public ResponseEntity<Errors> addPhone(@Validated @ModelAttribute(name = "phoneDTO") PhoneDTO phoneDTO,
+                                           BindingResult bindingResult) {
         quantityValidator.validate(phoneDTO, bindingResult);
         if (bindingResult.hasErrors()) {
-            ResponseErrors errors = new ResponseErrors(bindingResult.getAllErrors());
+            ValidationErrors errors = new ValidationErrors(bindingResult.getAllErrors());
             return ResponseEntity.badRequest().body(errors);
         }
         try {
@@ -45,7 +46,8 @@ public class AjaxCartController {
             cartService.addPhone(phoneDTO.getId(), phoneDTO.getQuantity(), currentCart);
             return ResponseEntity.ok().build();
         } catch (OutOfStockException | EmptyDatabaseArgumentException e) {
-            throw e;
+            ResponseErrors errors = new ResponseErrors(e.getMessage());
+            return ResponseEntity.badRequest().body(errors);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }

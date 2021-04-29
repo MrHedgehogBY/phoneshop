@@ -1,11 +1,11 @@
 package com.es.core.cart;
 
 import com.es.core.exception.EmptyDatabaseArgumentException;
+import com.es.core.exception.OutOfStockException;
 import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneDao;
 import com.es.core.model.phone.Stock;
 import com.es.core.model.phone.StockDao;
-import com.es.core.exception.OutOfStockException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,19 +23,16 @@ public class HttpSessionCartService implements CartService {
     @Resource
     private StockDao jdbcStockDao;
 
-    private static final String CART_SESSION_ATTRIBUTE = HttpSessionCartService.class.getName() + ".cart";
+    private static final String CART_SESSION_ATTRIBUTE = "sessionCart";
 
     @Override
     public Cart getCart(HttpSession httpSession) {
-        Object attribute = httpSession.getAttribute(HttpSessionCartService.CART_SESSION_ATTRIBUTE);
-        Cart cart;
+        Cart attribute = (Cart) httpSession.getAttribute(HttpSessionCartService.CART_SESSION_ATTRIBUTE);
         if (attribute == null) {
-            cart = new Cart();
-            httpSession.setAttribute(CART_SESSION_ATTRIBUTE, cart);
-        } else {
-            cart = (Cart) attribute;
+            attribute = new Cart();
+            httpSession.setAttribute(CART_SESSION_ATTRIBUTE, attribute);
         }
-        return cart;
+        return attribute;
     }
 
     @Override
@@ -74,15 +71,14 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public void calculateCart(Cart cart) {
-        cart.setTotalQuantity(cart.getCartItems().stream()
-                .map(CartItem::getQuantity)
-                .mapToLong(item -> item)
-                .sum()
-        );
-        cart.setTotalCost(cart.getCartItems().stream()
+        long totalQuantity = cart.getCartItems().stream()
+                .mapToLong(CartItem::getQuantity)
+                .sum();
+        cart.setTotalQuantity(totalQuantity);
+        BigDecimal totalCost = cart.getCartItems().stream()
                 .map(item -> item.getPhone().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-        );
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        cart.setTotalCost(totalCost);
     }
 
     private void addToCart(Long quantity, Stock stock, Phone phone, Cart cart) {

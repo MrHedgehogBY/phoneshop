@@ -5,30 +5,30 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <head>
-    <title><spring:eval expression="@localizationEN.getProperty('title')" /></title>
+    <title><spring:theme code="title" /></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/styles/main.css">
 </head>
 <body>
     <p>
-        <spring:eval expression="@localizationEN.getProperty('helloMessage')" />
+        <spring:theme code="helloMessage" />
     </p>
     <p>
-        <spring:eval expression="@localizationEN.getProperty('found')" />
-        <c:out value="${phoneQuantity}"/> <spring:eval expression="@localizationEN.getProperty('phones')" />
+        <spring:theme code="found" />
+        <c:out value="${phoneQuantity}"/> <spring:theme code="phones" />
     </p>
     <hr>
     <p>
     <div class="under-head">
         <form method="get">
             <input name="search" value="${not empty param.search ? param.search : ''}"/>
-            <button><spring:eval expression="@localizationEN.getProperty('search')" /></button>
+            <button><spring:theme code="search" /></button>
         </form>
         <div id="cart-div">
-            <spring:eval expression="@localizationEN.getProperty('cart')" />
+            <spring:theme code="cart" />
             <c:out value="${cart.totalQuantity}"/>
-            <spring:eval expression="@localizationEN.getProperty('items')" />
+            <spring:theme code="items" />
             <c:out value="${cart.totalCost}"/>
-            <spring:eval expression="@localizationEN.getProperty('usd')" />
+            <spring:theme code="usd" />
         </div>
     </div>
     <div id="success-result">
@@ -40,30 +40,30 @@
     <table border="1px">
         <thead>
         <tr>
-            <td><spring:eval expression="@localizationEN.getProperty('image')" /></td>
+            <td><spring:theme code="image" /></td>
             <td>
-                <spring:eval expression="@localizationEN.getProperty('brand')" />
+                <spring:theme code="brand" />
                 <tags:sortLink field="brand" order="asc"/>
                 <tags:sortLink field="brand" order="desc"/>
             </td>
             <td>
-                <spring:eval expression="@localizationEN.getProperty('model')" />
+                <spring:theme code="model" />
                 <tags:sortLink field="model" order="asc"/>
                 <tags:sortLink field="model" order="desc"/>
             </td>
-            <td><spring:eval expression="@localizationEN.getProperty('color')" /></td>
+            <td><spring:theme code="color" /></td>
             <td>
-                <spring:eval expression="@localizationEN.getProperty('displaySize')" />
+                <spring:theme code="displaySize" />
                 <tags:sortLink field="displaySizeInches" order="asc"/>
                 <tags:sortLink field="displaySizeInches" order="desc"/>
             </td>
             <td>
-                <spring:eval expression="@localizationEN.getProperty('price')" />
+                <spring:theme code="price" />
                 <tags:sortLink field="price" order="asc"/>
                 <tags:sortLink field="price" order="desc"/>
             </td>
-            <td><spring:eval expression="@localizationEN.getProperty('quantity')" /></td>
-            <td><spring:eval expression="@localizationEN.getProperty('action')" /></td>
+            <td><spring:theme code="quantity" /></td>
+            <td><spring:theme code="action" /></td>
         </tr>
         </thead>
         <c:forEach var="phone" items="${phones}">
@@ -90,7 +90,7 @@
                     </td>
                     <td>
                         <button>
-                            <spring:eval expression="@localizationEN.getProperty('addToCart')" />
+                            <spring:theme code="addToCart" />
                         </button>
                     </td>
                 </tr>

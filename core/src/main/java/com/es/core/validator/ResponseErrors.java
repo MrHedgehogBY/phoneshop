@@ -1,30 +1,18 @@
 package com.es.core.validator;
 
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.validation.ObjectError;
+public class ResponseErrors implements Errors {
 
-import java.util.List;
-import java.util.stream.Collectors;
+    private String errorMessage;
 
-public class ResponseErrors {
-
-    private String errorsMessage;
-
-    public ResponseErrors() {
-
-    }
-
-    public ResponseErrors(List<ObjectError> errors) {
-        errorsMessage = errors.stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.joining(","));
+    public ResponseErrors(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public String getErrorsMessage() {
-        return errorsMessage;
+        return errorMessage;
     }
 
-    public void setErrorsMessage(String errorsMessage) {
-        this.errorsMessage = errorsMessage;
+    public void setErrorsMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }
