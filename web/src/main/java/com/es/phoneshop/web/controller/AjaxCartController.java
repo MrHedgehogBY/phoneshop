@@ -46,7 +46,7 @@ public class AjaxCartController {
             cartService.addPhone(phoneDTO.getId(), phoneDTO.getQuantity(), currentCart);
             return ResponseEntity.ok().build();
         } catch (OutOfStockException | EmptyDatabaseArgumentException e) {
-            ResponseErrors errors = new ResponseErrors(e.getMessage());
+            ResponseErrors errors = new ResponseErrors(e.getErrorMessage());
             return ResponseEntity.badRequest().body(errors);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
