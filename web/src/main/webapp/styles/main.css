@@ -2,7 +2,7 @@
     color: green;
 }
 
-.result-error {
+.result-for-item {
     color: red;
 }
 
@@ -10,11 +10,16 @@
     color: red;
 }
 
+#result {
+    color: red;
+}
+
 #ajax-errors {
     color: red;
 }
 
-.under-head {
+.header-part {
+    margin-top: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -26,8 +31,73 @@
     justify-content: space-between;
 }
 
-#cart-div {
-    border-width: 4px;
-    border-color: black;
-    border-radius: 3px;
+/*#cart-div {*/
+/*    text-align: center;*/
+/*    vertical-align: center;*/
+/*    border: 2px solid lightgrey;*/
+/*    padding: 10px;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+#pdp-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.price-n-button-add {
+    text-align: center;
+    border: 2px solid lightgrey;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#left-part {
+    width: 350px;
+}
+
+.back-to-plp {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.buttons {
+    text-align: center;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+    background: lightgrey;
+    transition: 0.2s;
+}
+
+.buttons:hover {
+    background: grey;
+}
+
+table {
+    border: 1px solid grey;
+}
+
+td {
+    padding: 5px;
+    border: 1px solid grey;
+}
+
+#cart-button {
+    height: 30px;
+}
+
+#cart-buttons {
+    display: flex;
+    flex-direction: row;
+}
+
+#update-cart {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+#order-cart {
+    margin-top: 10px;
+    margin-right: 10px;
 }

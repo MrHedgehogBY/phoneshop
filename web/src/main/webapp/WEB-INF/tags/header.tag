@@ -1,0 +1,19 @@
+<%@ tag trimDirectiveWhitespaces="true" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ attribute name="cart" type="com.es.core.cart.Cart" required="true" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<div class="header-part">
+    <a href="${pageContext.request.contextPath}/productList">
+        <h2>
+            <spring:theme code="helloMessage" />
+        </h2>
+    </a>
+    <form action="${pageContext.request.contextPath}/cart" method="get">
+        <button id="cart-button" class="buttons">
+            <spring:theme code="cart" /><c:out value=" ${cart.totalQuantity} "/>
+            <spring:theme code="items" /><c:out value=" ${cart.totalCost} "/><spring:theme code="usd" />
+        </button>
+    </form>
+</div>
+<hr>
