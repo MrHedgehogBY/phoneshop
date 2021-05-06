@@ -1,6 +1,6 @@
 package com.es.core.validator;
 
-import com.es.core.cart.PhoneDTO;
+import com.es.core.model.phone.PhoneDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;

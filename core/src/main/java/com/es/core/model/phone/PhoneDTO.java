@@ -1,4 +1,4 @@
-package com.es.core.cart;
+package com.es.core.model.phone;
 
 public class PhoneDTO {
     private Long id;

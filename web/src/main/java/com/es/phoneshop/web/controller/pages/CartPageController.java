@@ -2,9 +2,9 @@ package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.cart.Cart;
 import com.es.core.cart.CartService;
-import com.es.core.cart.PhoneArrayDTO;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.PhoneArrayDTO;
 import com.es.core.model.phone.PhoneDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -63,7 +63,7 @@ public class CartPageController {
             return failedValidation(cart, bindingResult, model);
         }
         HashMap<Long, Long> idQuantityMap = new HashMap<>();
-        IntStream.range(0, phoneArrayDTO.getQuantity().length - 1).forEach(i -> {
+        IntStream.range(0, phoneArrayDTO.getQuantity().length).forEach(i -> {
             idQuantityMap.put(Long.parseLong(phoneArrayDTO.getPhoneId()[i]),
                     Long.parseLong(phoneArrayDTO.getQuantity()[i]));
         });

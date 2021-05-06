@@ -99,11 +99,13 @@
             </c:forEach>
         </table>
     </form:form>
+    <form id="to-order-form" action="${pageContext.request.contextPath}/order">
+    </form>
     <div id="cart-buttons">
         <button class="buttons" id="update-cart" form="update-form">
             <spring:theme code="updateCart" />
         </button>
-        <button class="buttons" id="order-cart">
+        <button class="buttons" id="order-cart" form="to-order-form">
             <spring:theme code="orderCart" />
         </button>
     </div>

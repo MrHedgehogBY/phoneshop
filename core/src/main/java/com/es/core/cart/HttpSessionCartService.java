@@ -7,6 +7,7 @@ import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneDao;
 import com.es.core.model.phone.Stock;
 import com.es.core.model.phone.StockDao;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,6 +39,10 @@ public class HttpSessionCartService implements CartService {
         return attribute;
     }
 
+    public void deleteCart(HttpSession httpSession) {
+        httpSession.setAttribute(CART_SESSION_ATTRIBUTE, null);
+    }
+
     @Override
     public void addPhone(Long phoneId, Long quantity, Cart cart) throws OutOfStockException, EmptyDatabaseArgumentException {
         Optional<Phone> optionalPhone = jdbcPhoneDao.get(phoneId);
@@ -45,7 +50,7 @@ public class HttpSessionCartService implements CartService {
         if (optionalPhone.isPresent() && optionalStock.isPresent()) {
             Stock stock = optionalStock.get();
             Phone phone = optionalPhone.get();
-            if (stock.getStock() - stock.getReserved() >= quantity) {
+            if (stock.getStock() >= quantity) {
                 addToCart(quantity, stock, phone, cart);
             } else {
                 throw new OutOfStockException("Product is out of stock");
@@ -65,9 +70,8 @@ public class HttpSessionCartService implements CartService {
                 .forEach(cartItem -> {
                     Long phoneId = cartItem.getPhone().getId();
                     Long quantity = items.get(cartItem.getPhone().getId());
-                    Long quantityDifference = quantity - cartItem.getQuantity();
-                    if (checkQuantity(phoneId, quantityDifference)) {
-                        cartItem.setQuantity(cartItem.getQuantity() + quantityDifference);
+                    if (checkQuantity(phoneId, quantity)) {
+                        cartItem.setQuantity(quantity);
                     } else {
                         outOfStockPhones.add(cartItem.getPhone());
                     }
@@ -77,7 +81,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void remove(Long phoneId, Cart cart) throws NoElementWithSuchIdException {
+    public void remove(Long phoneId, Cart cart) {
         Optional<CartItem> optionalCartItem = findSameCartItem(phoneId, cart);
         if (optionalCartItem.isPresent()) {
             cart.getCartItems().remove(optionalCartItem.get());
@@ -99,13 +103,27 @@ public class HttpSessionCartService implements CartService {
         cart.setTotalCost(totalCost);
     }
 
-    private boolean checkQuantity(Long phoneId, Long quantityDifference) {
+    @Override
+    public void checkCartItems(Cart cart) throws OutOfStockException {
+        List<Long> idsOutOfStock = new ArrayList<>();
+        cart.getCartItems().forEach(cartItem -> {
+            if (!checkQuantity(cartItem.getPhone().getId(), cartItem.getQuantity())) {
+                idsOutOfStock.add(cartItem.getPhone().getId());
+            }
+        });
+        if (CollectionUtils.isNotEmpty(idsOutOfStock)) {
+            idsOutOfStock.forEach(id -> remove(id, cart));
+            throw new OutOfStockException();
+        }
+
+    }
+
+    @Override
+    public boolean checkQuantity(Long phoneId, Long quantity) {
         Optional<Stock> optionalStock = jdbcStockDao.get(phoneId);
         if (optionalStock.isPresent()) {
             Stock stock = optionalStock.get();
-            if (stock.getStock() - stock.getReserved() >= quantityDifference) {
-                jdbcStockDao.update(phoneId, stock.getStock() - quantityDifference,
-                        stock.getReserved() + quantityDifference);
+            if (stock.getStock() >= quantity) {
                 return true;
             }
         }

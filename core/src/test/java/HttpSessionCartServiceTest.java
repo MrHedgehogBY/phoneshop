@@ -18,7 +18,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +46,6 @@ public class HttpSessionCartServiceTest {
     private CartItem cartItem;
     private Long incorrectId = 3L;
     private HashMap<Long, Long> updateMap;
-    private List<Phone> outOfStockPhones;
     private Long newQuantity = 5L;
     private Long newQuantityForOutOfStock = 100L;
 
@@ -67,7 +65,6 @@ public class HttpSessionCartServiceTest {
         cart.setTotalQuantity(2L);
         cart.setTotalCost(BigDecimal.valueOf(200L));
         updateMap = new HashMap<>();
-        outOfStockPhones = new ArrayList<>();
     }
 
     @Test
@@ -119,5 +116,19 @@ public class HttpSessionCartServiceTest {
         List<Phone> outOfStockPhones = httpSessionCartService.update(updateMap, cart);
         assertEquals(cart.getTotalCost(), BigDecimal.valueOf(500L));
         assertTrue(outOfStockPhones.isEmpty());
+    }
+
+    @Test
+    public void testCheckCartItems() throws OutOfStockException {
+        when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
+        httpSessionCartService.checkCartItems(cart);
+    }
+
+    @Test(expected = OutOfStockException.class)
+    public void testCheckItemsOutOfStock() throws OutOfStockException {
+        cart.getCartItems().get(0).setQuantity(newQuantityForOutOfStock);
+        cart.setTotalQuantity(newQuantityForOutOfStock);
+        when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
+        httpSessionCartService.checkCartItems(cart);
     }
 }

@@ -2,7 +2,7 @@ package com.es.phoneshop.web.controller;
 
 import com.es.core.cart.Cart;
 import com.es.core.cart.CartService;
-import com.es.core.cart.PhoneDTO;
+import com.es.core.model.phone.PhoneDTO;
 import com.es.core.exception.EmptyDatabaseArgumentException;
 import com.es.core.exception.OutOfStockException;
 import com.es.core.validator.Errors;
