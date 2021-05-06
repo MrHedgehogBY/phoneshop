@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -46,7 +47,7 @@ public class HttpSessionCartServiceTest {
     private CartItem cartItem;
     private Long incorrectId = 3L;
     private HashMap<Long, Long> updateMap;
-    private List<Long> outOfStockId;
+    private List<Phone> outOfStockPhones;
     private Long newQuantity = 5L;
     private Long newQuantityForOutOfStock = 100L;
 
@@ -66,7 +67,7 @@ public class HttpSessionCartServiceTest {
         cart.setTotalQuantity(2L);
         cart.setTotalCost(BigDecimal.valueOf(200L));
         updateMap = new HashMap<>();
-        outOfStockId = new ArrayList<>();
+        outOfStockPhones = new ArrayList<>();
     }
 
     @Test
@@ -115,7 +116,8 @@ public class HttpSessionCartServiceTest {
     public void testUpdate() {
         updateMap.put(phone.getId(), newQuantity);
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        httpSessionCartService.update(updateMap, cart, outOfStockId);
+        List<Phone> outOfStockPhones = httpSessionCartService.update(updateMap, cart);
         assertEquals(cart.getTotalCost(), BigDecimal.valueOf(500L));
+        assertTrue(outOfStockPhones.isEmpty());
     }
 }

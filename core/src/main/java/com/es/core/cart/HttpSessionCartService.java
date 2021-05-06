@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,7 +56,8 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void update(Map<Long, Long> items, Cart cart, List<Long> outOfStockId) {
+    public List<Phone> update(Map<Long, Long> items, Cart cart) {
+        List<Phone> outOfStockPhones = new ArrayList<>();
         items.keySet().stream()
                 .map(phoneId -> findSameCartItem(phoneId, cart))
                 .filter(Optional::isPresent)
@@ -67,10 +69,11 @@ public class HttpSessionCartService implements CartService {
                     if (checkQuantity(phoneId, quantityDifference)) {
                         cartItem.setQuantity(cartItem.getQuantity() + quantityDifference);
                     } else {
-                        outOfStockId.add(phoneId);
+                        outOfStockPhones.add(cartItem.getPhone());
                     }
                 });
         calculateCart(cart);
+        return outOfStockPhones;
     }
 
     @Override
@@ -79,7 +82,7 @@ public class HttpSessionCartService implements CartService {
         if (optionalCartItem.isPresent()) {
             cart.getCartItems().remove(optionalCartItem.get());
         } else {
-            throw new NoElementWithSuchIdException();
+            throw new NoElementWithSuchIdException(phoneId);
         }
         calculateCart(cart);
     }

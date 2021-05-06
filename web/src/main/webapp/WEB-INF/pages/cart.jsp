@@ -78,13 +78,13 @@
                     </td>
                     <td>
                         <input class="quantity-input" type="text" id="quantity"
-                               name="quantity" value="${(not empty errorsId or not empty outOfStockId) ?
+                               name="quantity" value="${(not empty errorsId or not empty outOfStockPhones) ?
                                paramValues['quantity'][status.index] : cartItem.quantity}"/>
                         <div class="result-error" id="result">
                             <c:if test="${fn:contains(errorsId, cartItem.phone.id)}">
                                 <spring:theme code="wrongInput"/>
                             </c:if>
-                            <c:if test="${fn:contains(outOfStockId, cartItem.phone.id)}">
+                            <c:if test="${fn:contains(outOfStockPhones, cartItem.phone)}">
                                 <spring:theme code="outOfStock"/>
                             </c:if>
                         </div>

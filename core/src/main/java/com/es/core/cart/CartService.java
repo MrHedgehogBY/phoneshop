@@ -3,6 +3,7 @@ package com.es.core.cart;
 import com.es.core.exception.EmptyDatabaseArgumentException;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.exception.OutOfStockException;
+import com.es.core.model.phone.Phone;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface CartService {
      * @param items key: {@link com.es.core.model.phone.Phone#id}
      *              value: quantity
      */
-    void update(Map<Long, Long> items, Cart cart, List<Long> outOfStockId);
+    List<Phone> update(Map<Long, Long> items, Cart cart);
 
     void remove(Long phoneId, Cart cart) throws NoElementWithSuchIdException;
 
