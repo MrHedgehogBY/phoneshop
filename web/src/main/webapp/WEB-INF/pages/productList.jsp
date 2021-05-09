@@ -5,32 +5,20 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <head>
-    <title><spring:theme code="title" /></title>
+    <title><spring:theme code="titlePlp" /></title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/styles/main.css">
 </head>
 <body>
+    <tags:header cart="${cart}"/>
     <p>
-        <spring:theme code="helloMessage" />
-    </p>
-    <p>
+    <div>
         <spring:theme code="found" />
         <c:out value="${phoneQuantity}"/> <spring:theme code="phones" />
-    </p>
-    <hr>
-    <p>
-    <div class="under-head">
-        <form method="get">
-            <input name="search" value="${not empty param.search ? param.search : ''}"/>
-            <button><spring:theme code="search" /></button>
-        </form>
-        <div id="cart-div">
-            <spring:theme code="cart" />
-            <c:out value="${cart.totalQuantity}"/>
-            <spring:theme code="items" />
-            <c:out value="${cart.totalCost}"/>
-            <spring:theme code="usd" />
-        </div>
     </div>
+    <form method="get">
+        <input name="search" value="${not empty param.search ? param.search : ''}"/>
+        <button class="buttons"><spring:theme code="search" /></button>
+    </form>
     <div id="success-result">
     </div>
     <div id="error-result">
@@ -73,7 +61,7 @@
                         <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}">
                     </td>
                     <td><c:out value="${phone.brand}"/></td>
-                    <td><c:out value="${phone.model}"/></td>
+                    <td><a href="${pageContext.request.contextPath}/productDetails/${phone.id}"><c:out value="${phone.model}"/></a></td>
                     <td>
                         <c:forEach var="color" items="${phone.colors}">
                             <c:out value="${color.code}"/><br>
@@ -83,13 +71,12 @@
                     <td>$ <c:out value="${phone.price}"/></td>
                     <td>
                         <input class="quantity-input" type="text" id="quantity${phone.id}" name="quantity" value="1"/>
-                        <div class="result-error" id="result${phone.id}">
-
+                        <div class="result-for-item" id="result${phone.id}">
                         </div>
                         <input id="phoneId${phone.id}" name="phoneId" type="hidden" value="${phone.id}"/>
                     </td>
                     <td>
-                        <button>
+                        <button class="buttons">
                             <spring:theme code="addToCart" />
                         </button>
                     </td>
@@ -124,8 +111,8 @@
             type: 'POST',
             url: 'ajaxCart',
             data: 'id=' + id + '&quantity=' + quantity,
-            success: function (message) {
-                $('#result' + phoneId).text('');
+            success: function () {
+                $('.result-for-item').text('');
                 $('#error-result').text('');
                 $('#ajax-errors').text('');
                 $('#success-result').text('Product added to cart successfully');

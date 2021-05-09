@@ -4,6 +4,10 @@ public class CustomException extends Exception {
 
     public String errorMessage;
 
+    public CustomException() {
+
+    }
+
     public CustomException(String errorMessage) {
         this.errorMessage = errorMessage;
     }
@@ -11,4 +15,9 @@ public class CustomException extends Exception {
     public String getErrorMessage() {
         return errorMessage;
     }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
 }

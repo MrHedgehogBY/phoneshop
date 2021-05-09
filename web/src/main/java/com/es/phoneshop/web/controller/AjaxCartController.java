@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 public class AjaxCartController {
 
     @Resource(name = "phoneDTOValidator")
-    private Validator quantityValidator;
+    private Validator phoneDTOValidator;
 
     @Resource
     private CartService cartService;
@@ -36,7 +36,7 @@ public class AjaxCartController {
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Errors> addPhone(@Validated @ModelAttribute(name = "phoneDTO") PhoneDTO phoneDTO,
                                            BindingResult bindingResult) {
-        quantityValidator.validate(phoneDTO, bindingResult);
+        phoneDTOValidator.validate(phoneDTO, bindingResult);
         if (bindingResult.hasErrors()) {
             ValidationErrors errors = new ValidationErrors(bindingResult.getAllErrors());
             return ResponseEntity.badRequest().body(errors);
