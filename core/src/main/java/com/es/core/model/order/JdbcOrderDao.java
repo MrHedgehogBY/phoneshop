@@ -29,14 +29,18 @@ public class JdbcOrderDao implements OrderDao {
     private static final String SQL_SELECT_FOR_GET = "select * from orders where id = ";
     private static final String SQL_SELECT_FOR_MAP_ROW = "select * from orderItems where orderId = ";
     private static final String SQL_SAVE_ORDER = "insert into orders (subtotal, deliveryPrice, totalPrice, firstName," +
-            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, date, status) " +
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_SAVE_ORDER_ITEM = "insert into orderItems (phoneId, orderId, quantity) " +
             "values (?, ?, ?)";
+    private static final String SQL_FIND_ALL_ORDERS = "select * from orders order by date desc offset %d limit %d";
+    private static final String SQL_COUNT_ALL_ORDERS = "select count(*) from orders";
+    private static final String SQL_UPDATE_ORDER_STATUS = "update orders set status = ? where id = ?";
 
     @Override
     public Optional<Order> get(Long key) {
         return Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_FOR_GET + key,
-                new JdbcOrderDao.OrderBeanPropertyRowMapper()));
+                new OrderBeanPropertyRowMapper()));
     }
 
     @Override
@@ -44,7 +48,7 @@ public class JdbcOrderDao implements OrderDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         Object[] orderParams = new Object[]{order.getSubtotal(), order.getDeliveryPrice(), order.getTotalPrice(),
                 order.getFirstName(), order.getLastName(), order.getDeliveryAddress(), order.getContactPhoneNo(),
-                order.getAdditionalInformation(), order.getStatus().toString()};
+                order.getAdditionalInformation(), order.getDate(), order.getStatus().toString()};
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SAVE_ORDER);
             for (int i = 1; i <= orderParams.length; i++) {
@@ -59,6 +63,21 @@ public class JdbcOrderDao implements OrderDao {
                     id, orderItems.get(i).getQuantity());
         }
         return id;
+    }
+
+    @Override
+    public void updateStatus(Long key, OrderStatus status) {
+        jdbcTemplate.update(SQL_UPDATE_ORDER_STATUS, status.toString(), key);
+    }
+
+    @Override
+    public List<Order> findAll(int offset, int limit) {
+        return jdbcTemplate.query(String.format(SQL_FIND_ALL_ORDERS, offset, limit), new OrderBeanPropertyRowMapper());
+    }
+
+    @Override
+    public Long count() {
+        return jdbcTemplate.queryForObject(SQL_COUNT_ALL_ORDERS, Long.class);
     }
 
     private final class OrderBeanPropertyRowMapper extends BeanPropertyRowMapper<Order> {

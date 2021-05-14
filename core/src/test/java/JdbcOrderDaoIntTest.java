@@ -14,6 +14,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -51,6 +52,7 @@ public class JdbcOrderDaoIntTest {
         phone.setModel(model);
         phone.setId(id);
         order = new Order();
+        order.setDate(new Timestamp(System.currentTimeMillis()));
         order.setStatus(OrderStatus.NEW);
         orderItem = new OrderItem(id, phone, order, quantity);
     }
@@ -81,5 +83,19 @@ public class JdbcOrderDaoIntTest {
         jdbcOrderDao.save(order);
         Optional<Order> orderFromTable = jdbcOrderDao.get(order.getId());
         orderFromTable.ifPresent(value -> assertEquals(value.getOrderItems().get(0).getPhone().getId(), phone.getId()));
+    }
+
+    @Test
+    public void updateStatusTest() {
+        deleteFromTables(jdbcTemplate, "orders");
+        order.setId(id);
+        jdbcOrderDao.save(order);
+        jdbcOrderDao.updateStatus(order.getId(), OrderStatus.DELIVERED);
+        OrderStatus status = null;
+        Optional<Order> changedOrder = jdbcOrderDao.get(order.getId());
+        if (changedOrder.isPresent()) {
+            status = changedOrder.get().getStatus();
+        }
+        assertEquals(OrderStatus.DELIVERED, status);
     }
 }

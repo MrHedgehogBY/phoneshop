@@ -3,6 +3,7 @@ package com.es.core.model.order;
 import com.es.core.cart.Cart;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class Order {
     private String deliveryAddress;
     private String contactPhoneNo;
     private String additionalInformation;
+    private String date;
 
     private OrderStatus status;
 
@@ -112,6 +114,14 @@ public class Order {
 
     public void setAdditionalInformation(String additionalInformation) {
         this.additionalInformation = additionalInformation;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(Timestamp date) {
+        this.date = date.toString().split("\\.")[0];
     }
 
     public OrderStatus getStatus() {

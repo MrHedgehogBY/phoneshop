@@ -11,6 +11,7 @@ import com.es.core.model.phone.StockDao;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new NoElementWithSuchIdException(orderItem.getPhone().getId());
             }
         });
+        order.setDate(new Timestamp(System.currentTimeMillis()));
         return jdbcOrderDao.save(order);
     }
 }

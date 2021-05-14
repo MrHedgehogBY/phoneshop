@@ -116,3 +116,29 @@ td {
 .required {
     color: red;
 }
+
+.admin-order-details-under-head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#admin-order-details-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.buttons-in-line {
+    text-align: center;
+    border: 1px solid grey;
+    border-radius: 5px;
+    padding: 5px;
+    background: lightgrey;
+    transition: 0.2s;
+    margin-right: 10px;
+}
+
+.buttons-in-line:hover {
+    background: grey;
+}
