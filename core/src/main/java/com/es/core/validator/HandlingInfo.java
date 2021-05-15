@@ -1,4 +1,4 @@
 package com.es.core.validator;
 
-public interface Errors {
+public interface HandlingInfo {
 }

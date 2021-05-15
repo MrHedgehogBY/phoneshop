@@ -34,25 +34,6 @@ public class Order {
         deliveryPrice = BigDecimal.ZERO;
     }
 
-    public Order(Long id, Cart cart, OrderDataDTO orderDataDTO, Long deliveryPrice) {
-        this.id = id;
-        this.orderItems = new ArrayList<>();
-        cart.getCartItems().forEach(cartItem -> {
-            OrderItem orderItem = new OrderItem(cartItem, this);
-            this.orderItems.add(orderItem);
-        });
-        this.subtotal = cart.getTotalCost();
-        this.deliveryPrice = BigDecimal.valueOf(deliveryPrice);
-        this.totalPrice = subtotal.add(this.deliveryPrice);
-        this.firstName = orderDataDTO.getFirstName();
-        this.lastName = orderDataDTO.getLastName();
-        this.deliveryAddress = orderDataDTO.getAddress();
-        this.contactPhoneNo = orderDataDTO.getPhone();
-        this.additionalInformation = orderDataDTO.getAdditionalInformation();
-        this.status = OrderStatus.NEW;
-
-    }
-
     public Long getId() {
         return id;
     }

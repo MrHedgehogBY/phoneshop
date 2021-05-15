@@ -40,7 +40,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     public void deleteCart(HttpSession httpSession) {
-        httpSession.setAttribute(CART_SESSION_ATTRIBUTE, null);
+        httpSession.removeAttribute(CART_SESSION_ATTRIBUTE);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class HttpSessionCartService implements CartService {
             Stock stock = optionalStock.get();
             Phone phone = optionalPhone.get();
             if (stock.getStock() >= quantity) {
-                addToCart(quantity, stock, phone, cart);
+                addToCart(quantity, phone, cart);
             } else {
                 throw new OutOfStockException("Product is out of stock");
             }
@@ -61,7 +61,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public List<Phone> update(Map<Long, Long> items, Cart cart) {
+    public List<Phone> checkOutOfStock(Map<Long, Long> items, Cart cart) {
         List<Phone> outOfStockPhones = new ArrayList<>();
         items.keySet().stream()
                 .map(phoneId -> findSameCartItem(phoneId, cart))
@@ -70,14 +70,24 @@ public class HttpSessionCartService implements CartService {
                 .forEach(cartItem -> {
                     Long phoneId = cartItem.getPhone().getId();
                     Long quantity = items.get(cartItem.getPhone().getId());
-                    if (checkQuantity(phoneId, quantity)) {
-                        cartItem.setQuantity(quantity);
-                    } else {
+                    if (!checkQuantity(phoneId, quantity)) {
                         outOfStockPhones.add(cartItem.getPhone());
                     }
                 });
-        calculateCart(cart);
         return outOfStockPhones;
+    }
+
+    @Override
+    public void update(Map<Long, Long> items, Cart cart) {
+        items.keySet().stream()
+                .map(phoneId -> findSameCartItem(phoneId, cart))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(cartItem -> {
+                    Long quantity = items.get(cartItem.getPhone().getId());
+                    cartItem.setQuantity(quantity);
+                });
+        calculateCart(cart);
     }
 
     @Override
@@ -115,7 +125,6 @@ public class HttpSessionCartService implements CartService {
             idsOutOfStock.forEach(id -> remove(id, cart));
             throw new OutOfStockException();
         }
-
     }
 
     @Override
@@ -130,8 +139,7 @@ public class HttpSessionCartService implements CartService {
         return false;
     }
 
-    private void addToCart(Long quantity, Stock stock, Phone phone, Cart cart) {
-        jdbcStockDao.update(phone.getId(), stock.getStock() - quantity, stock.getReserved() + quantity);
+    private void addToCart(Long quantity, Phone phone, Cart cart) {
         Optional<CartItem> optionalCartItem = findSameCartItem(phone.getId(), cart);
         if (optionalCartItem.isPresent()) {
             CartItem existsItem = optionalCartItem.get();

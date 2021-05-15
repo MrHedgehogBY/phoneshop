@@ -14,10 +14,6 @@
     <input class="buttons" type="button" onclick="history.go(-1);" value="<spring:theme code="backToPdp"/>"/>
     <div id="success-result">
     </div>
-    <div id="error-result">
-    </div>
-    <div id="ajax-errors">
-    </div>
     <div id="pdp-content">
         <div id="left-part">
             <h3>
@@ -182,17 +178,24 @@
             type: 'POST',
             url: '${pageContext.request.contextPath}/ajaxCart',
             data: 'id=' + id + '&quantity=' + quantity,
-            success: function () {
+            success: function (message) {
                 $('#result').text('');
-                $('#error-result').text('');
-                $('#ajax-errors').text('');
+                var json = JSON.stringify(message);
+                var jsonObject = JSON.parse(json);
+                $('#cart-quantity').text(jsonObject.totalQuantity);
+                $('#cart-cost').text(jsonObject.totalCost);
                 $('#success-result').text('Product added to cart successfully');
             },
             error: function (message) {
                 $('#success-result').text('');
-                $('#error-result').text('Error ' + message.status + ' while adding to cart');
-                $('#ajax-errors').text(message.responseText);
-                $('#result').text('Wrong input');
+                var json = JSON.stringify(message);
+                var jsonObject = JSON.parse(json);
+                var responseTextObject = JSON.parse(jsonObject.responseText);
+                if (responseTextObject.errorsMessage !== undefined) {
+                    $('#result').text(responseTextObject.errorsMessage);
+                } else {
+                    $('#result').text(responseTextObject.errors[0].code);
+                }
             }
         });
     }

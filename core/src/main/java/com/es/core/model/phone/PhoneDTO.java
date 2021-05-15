@@ -1,22 +1,22 @@
 package com.es.core.model.phone;
 
 public class PhoneDTO {
-    private Long id;
-    private Long quantity;
+    private String id;
+    private String quantity;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getQuantity() {
+    public String getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Long quantity) {
+    public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
 }

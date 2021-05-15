@@ -21,10 +21,6 @@
     </form>
     <div id="success-result">
     </div>
-    <div id="error-result">
-    </div>
-    <div id="ajax-errors">
-    </div>
     <table border="1px">
         <thead>
         <tr>
@@ -111,17 +107,24 @@
             type: 'POST',
             url: 'ajaxCart',
             data: 'id=' + id + '&quantity=' + quantity,
-            success: function () {
+            success: function (message) {
                 $('.result-for-item').text('');
-                $('#error-result').text('');
-                $('#ajax-errors').text('');
+                var json = JSON.stringify(message);
+                var jsonObject = JSON.parse(json);
+                $('#cart-quantity').text( jsonObject.totalQuantity);
+                $('#cart-cost').text( jsonObject.totalCost);
                 $('#success-result').text('Product added to cart successfully');
             },
             error: function (message) {
                 $('#success-result').text('');
-                $('#error-result').text('Error ' + message.status + ' while adding to cart');
-                $('#ajax-errors').text(message.responseText);
-                $('#result' + phoneId).text('Wrong input');
+                var json = JSON.stringify(message);
+                var jsonObject = JSON.parse(json);
+                var responseTextObject = JSON.parse(jsonObject.responseText);
+                if (responseTextObject.errorsMessage !== undefined) {
+                    $('#result' + phoneId).text(responseTextObject.errorsMessage);
+                } else {
+                    $('#result' + phoneId).text(responseTextObject.errors[0].code);
+                }
             }
         });
     }

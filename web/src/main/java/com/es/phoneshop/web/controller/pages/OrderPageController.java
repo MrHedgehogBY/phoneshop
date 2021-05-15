@@ -4,7 +4,6 @@ import com.es.core.cart.Cart;
 import com.es.core.cart.CartService;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.exception.OutOfStockException;
-import com.es.core.model.order.Order;
 import com.es.core.model.order.OrderDataDTO;
 import com.es.core.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +60,9 @@ public class OrderPageController {
         if (bindingResult.hasErrors()) {
             return prepareModelForValidationErrors(cart, model, bindingResult);
         }
-        Order order = orderService.createOrder(cart, orderDataDTO, Long.parseLong(env.getProperty("delivery.price")));
-        orderService.placeOrder(order);
+        Long id = orderService.placeOrder(cart, orderDataDTO, Long.parseLong(env.getProperty("delivery.price")));
         cartService.deleteCart(httpSession);
-        return "redirect:/orderOverview/" + order.getId();
+        return "redirect:/orderOverview/" + id;
     }
 
     private String prepareModelForEmptyCart(Cart cart, Model model) {

@@ -4,11 +4,11 @@ import org.springframework.validation.ObjectError;
 
 import java.util.List;
 
-public class ValidationErrors implements Errors {
+public class ValidationHandlingInfo implements HandlingInfo {
 
     private List<ObjectError> errors;
 
-    public ValidationErrors(List<ObjectError> errors) {
+    public ValidationHandlingInfo(List<ObjectError> errors) {
         this.errors = errors;
     }
 

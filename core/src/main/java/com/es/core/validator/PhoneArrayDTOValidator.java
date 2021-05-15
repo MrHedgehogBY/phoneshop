@@ -18,7 +18,7 @@ public class PhoneArrayDTOValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         PhoneArrayDTO dto = (PhoneArrayDTO) o;
-        IntStream.of(0, dto.getQuantity().length - 1).forEach(i -> {
+        IntStream.range(0, dto.getQuantity().length).forEach(i -> {
             try {
                 Long quantity = Long.parseLong(dto.getQuantity()[i]);
                 if (quantity <= 0) {

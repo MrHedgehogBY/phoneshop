@@ -30,84 +30,91 @@
             <c:out value="${message}"/>
         </c:if>
     </div>
-    <form:form id="update-form" method="post" action="${pageContext.request.contextPath}/cart" modelAttribute="phoneArrayDTO">
-        <table>
-            <thead>
-            <tr>
-                <td>
-                    <spring:theme code="brand" />
-                </td>
-                <td>
-                    <spring:theme code="model" />
-                </td>
-                <td>
-                    <spring:theme code="color" />
-                </td>
-                <td>
-                    <spring:theme code="displaySize" />
-                </td>
-                <td>
-                    <spring:theme code="price" />
-                </td>
-                <td>
-                    <spring:theme code="quantity" />
-                </td>
-                <td>
-                    <spring:theme code="action" />
-                </td>
-            </tr>
-            </thead>
-            <c:forEach var="cartItem" items="${cart.cartItems}" varStatus="status">
+    <c:if test="${not empty isEmpty}">
+        <h2><c:out value="${isEmpty}"/></h2>
+    </c:if>
+    <c:if test="${empty isEmpty}">
+        <form:form id="update-form" method="post" action="${pageContext.request.contextPath}/cart" modelAttribute="phoneArrayDTO">
+            <table>
+                <thead>
                 <tr>
                     <td>
-                        <c:out value="${cartItem.phone.brand}"/>
+                        <spring:theme code="brand" />
                     </td>
                     <td>
-                        <c:out value="${cartItem.phone.model}"/>
+                        <spring:theme code="model" />
                     </td>
                     <td>
-                        <c:forEach var="color" items="${cartItem.phone.colors}">
-                            <c:out value="${color.code}"/>
-                        </c:forEach>
+                        <spring:theme code="color" />
                     </td>
                     <td>
-                        <c:out value="${cartItem.phone.displaySizeInches}"/>"
+                        <spring:theme code="displaySize" />
                     </td>
                     <td>
-                        <c:out value="${cartItem.phone.price}"/><spring:theme code="usd"/>
+                        <spring:theme code="price" />
                     </td>
                     <td>
-                        <input class="quantity-input" type="text" id="quantity"
-                               name="quantity" value="${(not empty errorsId or not empty outOfStockPhones) ?
-                               paramValues['quantity'][status.index] : cartItem.quantity}"/>
-                        <div class="result-error" id="result">
-                            <c:if test="${fn:contains(errorsId, cartItem.phone.id)}">
-                                <spring:theme code="wrongInput"/>
-                            </c:if>
-                            <c:if test="${fn:contains(outOfStockPhones, cartItem.phone)}">
-                                <spring:theme code="outOfStock"/>
-                            </c:if>
-                        </div>
-                        <input id="phoneId" name="phoneId" type="hidden" value="${cartItem.phone.id}"/>
+                        <spring:theme code="quantity" />
                     </td>
                     <td>
-                        <button class="buttons" formmethod="post" formaction="${pageContext.request.contextPath}/cart/${cartItem.phone.id}">
-                            <spring:theme code="deleteFromCart"/>
-                        </button>
+                        <spring:theme code="action" />
                     </td>
                 </tr>
-            </c:forEach>
-        </table>
-    </form:form>
-    <form id="to-order-form" action="${pageContext.request.contextPath}/order">
-    </form>
-    <div id="cart-buttons">
-        <button class="buttons" id="update-cart" form="update-form">
-            <spring:theme code="updateCart" />
-        </button>
-        <button class="buttons" id="order-cart" form="to-order-form">
-            <spring:theme code="orderCart" />
-        </button>
-    </div>
+                </thead>
+                <c:forEach var="cartItem" items="${cart.cartItems}" varStatus="status">
+                    <tr>
+                        <td>
+                            <c:out value="${cartItem.phone.brand}"/>
+                        </td>
+                        <td>
+                            <c:out value="${cartItem.phone.model}"/>
+                        </td>
+                        <td>
+                            <c:forEach var="color" items="${cartItem.phone.colors}">
+                                <c:out value="${color.code}"/>
+                            </c:forEach>
+                        </td>
+                        <td>
+                            <c:out value="${cartItem.phone.displaySizeInches}"/>"
+                        </td>
+                        <td>
+                            <c:out value="${cartItem.phone.price}"/><spring:theme code="usd"/>
+                        </td>
+                        <td>
+                            <input class="quantity-input" type="text" id="quantity"
+                                   name="quantity" value="${((fn:contains(errorsId, cartItem.phone.id) or
+                                   fn:contains(outOfStockPhones, cartItem.phone))) ?
+                               paramValues['quantity'][status.index] : cartItem.quantity}"/>
+                            <div class="result-error" id="result">
+                                <c:if test="${fn:contains(errorsId, cartItem.phone.id)}">
+                                    <spring:theme code="wrongInput"/>
+                                </c:if>
+                                <c:if test="${fn:contains(outOfStockPhones, cartItem.phone)}">
+                                    <spring:theme code="outOfStock"/>
+                                </c:if>
+                            </div>
+                            <input id="phoneId" name="phoneId" type="hidden" value="${cartItem.phone.id}"/>
+                        </td>
+                        <td>
+                            <button class="buttons" formmethod="post" formaction="${pageContext.request.contextPath}/cart/${cartItem.phone.id}">
+                                <spring:theme code="deleteFromCart"/>
+                            </button>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </form:form>
+        <form id="to-order-form" action="${pageContext.request.contextPath}/order">
+        </form>
+        <div id="cart-buttons">
+            <button class="buttons" id="update-cart" form="update-form">
+                <spring:theme code="updateCart" />
+            </button>
+            <button class="buttons" id="order-cart" form="to-order-form">
+                <spring:theme code="orderCart" />
+            </button>
+        </div>
+    </c:if>
+
 </body>
 </html>

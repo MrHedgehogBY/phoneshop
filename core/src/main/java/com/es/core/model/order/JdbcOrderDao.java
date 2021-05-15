@@ -5,9 +5,12 @@ import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneDao;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,8 +28,8 @@ public class JdbcOrderDao implements OrderDao {
 
     private static final String SQL_SELECT_FOR_GET = "select * from orders where id = ";
     private static final String SQL_SELECT_FOR_MAP_ROW = "select * from orderItems where orderId = ";
-    private static final String SQL_SAVE_ORDER = "insert into orders (id, subtotal, deliveryPrice, totalPrice, firstName," +
-            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_SAVE_ORDER = "insert into orders (subtotal, deliveryPrice, totalPrice, firstName," +
+            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_SAVE_ORDER_ITEM = "insert into orderItems (phoneId, orderId, quantity) " +
             "values (?, ?, ?)";
 
@@ -37,15 +40,25 @@ public class JdbcOrderDao implements OrderDao {
     }
 
     @Override
-    public void save(Order order) {
-        jdbcTemplate.update(SQL_SAVE_ORDER, order.getId(), order.getSubtotal(), order.getDeliveryPrice(),
-                order.getTotalPrice(), order.getFirstName(), order.getLastName(), order.getDeliveryAddress(),
-                order.getContactPhoneNo(), order.getAdditionalInformation(), order.getStatus().toString());
+    public Long save(Order order) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        Object[] orderParams = new Object[]{order.getSubtotal(), order.getDeliveryPrice(), order.getTotalPrice(),
+                order.getFirstName(), order.getLastName(), order.getDeliveryAddress(), order.getContactPhoneNo(),
+                order.getAdditionalInformation(), order.getStatus().toString()};
+        jdbcTemplate.update(connection -> {
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_SAVE_ORDER);
+            for (int i = 1; i <= orderParams.length; i++) {
+                preparedStatement.setObject(i, orderParams[i - 1]);
+            }
+            return preparedStatement;
+        }, keyHolder);
+        Long id = keyHolder.getKey().longValue();
         List<OrderItem> orderItems = order.getOrderItems();
         for (int i = 0; i < orderItems.size(); i++) {
             jdbcTemplate.update(SQL_SAVE_ORDER_ITEM, orderItems.get(i).getPhone().getId(),
-                    orderItems.get(i).getOrder().getId(), orderItems.get(i).getQuantity());
+                    id, orderItems.get(i).getQuantity());
         }
+        return id;
     }
 
     private final class OrderBeanPropertyRowMapper extends BeanPropertyRowMapper<Order> {

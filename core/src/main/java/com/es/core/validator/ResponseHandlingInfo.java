@@ -1,10 +1,10 @@
 package com.es.core.validator;
 
-public class ResponseErrors implements Errors {
+public class ResponseHandlingInfo implements HandlingInfo {
 
     private String errorMessage;
 
-    public ResponseErrors(String errorMessage) {
+    public ResponseHandlingInfo(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

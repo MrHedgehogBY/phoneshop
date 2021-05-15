@@ -19,7 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,6 @@ public class OrderServiceImplTest {
     private Stock stock = new Stock();
     private CartItem cartItem;
     private OrderDataDTO orderDataDTO;
-    private Order order;
     private Long id = 1L;
     private Long deliveryPrice = 5L;
 
@@ -60,24 +58,15 @@ public class OrderServiceImplTest {
     }
 
     @Test
-    public void testCreateOrder() {
-        Order tempOrder = new Order(id, cart, orderDataDTO, deliveryPrice);
-        order = orderServiceImpl.createOrder(cart, orderDataDTO, deliveryPrice);
-        assertEquals(tempOrder.getId(), order.getId());
-    }
-
-    @Test
     public void testPlaceOrder() {
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        order = orderServiceImpl.createOrder(cart, orderDataDTO, deliveryPrice);
-        orderServiceImpl.placeOrder(order);
+        orderServiceImpl.placeOrder(cart, orderDataDTO, deliveryPrice);
     }
 
     @Test(expected = NoElementWithSuchIdException.class)
     public void testPlaceOrderException() {
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.empty());
-        order = orderServiceImpl.createOrder(cart, orderDataDTO, deliveryPrice);
-        orderServiceImpl.placeOrder(order);
+        orderServiceImpl.placeOrder(cart, orderDataDTO, deliveryPrice);
     }
 
 }

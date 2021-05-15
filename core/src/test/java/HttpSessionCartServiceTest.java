@@ -113,7 +113,8 @@ public class HttpSessionCartServiceTest {
     public void testUpdate() {
         updateMap.put(phone.getId(), newQuantity);
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        List<Phone> outOfStockPhones = httpSessionCartService.update(updateMap, cart);
+        List<Phone> outOfStockPhones = httpSessionCartService.checkOutOfStock(updateMap, cart);
+        httpSessionCartService.update(updateMap, cart);
         assertEquals(cart.getTotalCost(), BigDecimal.valueOf(500L));
         assertTrue(outOfStockPhones.isEmpty());
     }

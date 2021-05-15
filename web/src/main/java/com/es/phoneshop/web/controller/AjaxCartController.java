@@ -2,12 +2,13 @@ package com.es.phoneshop.web.controller;
 
 import com.es.core.cart.Cart;
 import com.es.core.cart.CartService;
-import com.es.core.model.phone.PhoneDTO;
 import com.es.core.exception.EmptyDatabaseArgumentException;
 import com.es.core.exception.OutOfStockException;
-import com.es.core.validator.Errors;
-import com.es.core.validator.ResponseErrors;
-import com.es.core.validator.ValidationErrors;
+import com.es.core.model.phone.PhoneDTO;
+import com.es.core.validator.HandlingInfo;
+import com.es.core.validator.ResponseHandlingInfo;
+import com.es.core.validator.SuccessfulHandlingInfo;
+import com.es.core.validator.ValidationHandlingInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -34,19 +35,21 @@ public class AjaxCartController {
     private HttpSession httpSession;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Errors> addPhone(@Validated @ModelAttribute(name = "phoneDTO") PhoneDTO phoneDTO,
-                                           BindingResult bindingResult) {
+    public ResponseEntity<HandlingInfo> addPhone(@Validated @ModelAttribute(name = "phoneDTO") PhoneDTO phoneDTO,
+                                                 BindingResult bindingResult) {
         phoneDTOValidator.validate(phoneDTO, bindingResult);
         if (bindingResult.hasErrors()) {
-            ValidationErrors errors = new ValidationErrors(bindingResult.getAllErrors());
+            ValidationHandlingInfo errors = new ValidationHandlingInfo(bindingResult.getAllErrors());
             return ResponseEntity.badRequest().body(errors);
         }
         try {
             Cart currentCart = cartService.getCart(httpSession);
-            cartService.addPhone(phoneDTO.getId(), phoneDTO.getQuantity(), currentCart);
-            return ResponseEntity.ok().build();
+            cartService.addPhone(Long.parseLong(phoneDTO.getId()), Long.parseLong(phoneDTO.getQuantity()), currentCart);
+            SuccessfulHandlingInfo handlingInfo = new SuccessfulHandlingInfo(currentCart.getTotalQuantity().toString(),
+                    currentCart.getTotalCost().toString());
+            return ResponseEntity.ok().body(handlingInfo);
         } catch (OutOfStockException | EmptyDatabaseArgumentException e) {
-            ResponseErrors errors = new ResponseErrors(e.getErrorMessage());
+            ResponseHandlingInfo errors = new ResponseHandlingInfo(e.getErrorMessage());
             return ResponseEntity.badRequest().body(errors);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
