@@ -1,14 +1,16 @@
 package com.es.core.model.order;
 
+import com.es.core.cart.Cart;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Order
-{
+public class Order {
     private Long id;
     private List<OrderItem> orderItems;
     /**
-     *  A sum of order item prices;
+     * A sum of order item prices;
      */
     private BigDecimal subtotal;
     private BigDecimal deliveryPrice;
@@ -21,8 +23,16 @@ public class Order
     private String lastName;
     private String deliveryAddress;
     private String contactPhoneNo;
+    private String additionalInformation;
 
     private OrderStatus status;
+
+    public Order() {
+        orderItems = new ArrayList<>();
+        subtotal = BigDecimal.ZERO;
+        totalPrice = BigDecimal.ZERO;
+        deliveryPrice = BigDecimal.ZERO;
+    }
 
     public Long getId() {
         return id;
@@ -94,6 +104,14 @@ public class Order
 
     public void setContactPhoneNo(String contactPhoneNo) {
         this.contactPhoneNo = contactPhoneNo;
+    }
+
+    public String getAdditionalInformation() {
+        return additionalInformation;
+    }
+
+    public void setAdditionalInformation(String additionalInformation) {
+        this.additionalInformation = additionalInformation;
     }
 
     public OrderStatus getStatus() {

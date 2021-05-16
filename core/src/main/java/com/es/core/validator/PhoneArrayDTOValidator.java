@@ -1,6 +1,6 @@
 package com.es.core.validator;
 
-import com.es.core.cart.PhoneArrayDTO;
+import com.es.core.model.phone.PhoneArrayDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -18,7 +18,7 @@ public class PhoneArrayDTOValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         PhoneArrayDTO dto = (PhoneArrayDTO) o;
-        IntStream.of(0, dto.getQuantity().length - 1).forEach(i -> {
+        IntStream.range(0, dto.getQuantity().length).forEach(i -> {
             try {
                 Long quantity = Long.parseLong(dto.getQuantity()[i]);
                 if (quantity <= 0) {

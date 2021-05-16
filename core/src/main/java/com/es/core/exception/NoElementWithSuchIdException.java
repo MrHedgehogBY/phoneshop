@@ -1,6 +1,6 @@
 package com.es.core.exception;
 
-public class NoElementWithSuchIdException extends Exception {
+public class NoElementWithSuchIdException extends RuntimeException {
 
     private Long id;
 

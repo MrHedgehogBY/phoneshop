@@ -11,8 +11,11 @@
     </a>
     <form action="${pageContext.request.contextPath}/cart" method="get">
         <button id="cart-button" class="buttons">
-            <spring:theme code="cart" /><c:out value=" ${cart.totalQuantity} "/>
-            <spring:theme code="items" /><c:out value=" ${cart.totalCost} "/><spring:theme code="usd" />
+            <spring:theme code="cart"/>&nbsp
+            <span id="cart-quantity"><c:out value="${cart.totalQuantity}"/></span>
+            <spring:theme code="items"/>&nbsp
+            <span id="cart-cost"><c:out value="${cart.totalCost}"/></span>
+            <spring:theme code="usd"/>
         </button>
     </form>
 </div>

@@ -2,9 +2,9 @@ package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.cart.Cart;
 import com.es.core.cart.CartService;
-import com.es.core.cart.PhoneArrayDTO;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.PhoneArrayDTO;
 import com.es.core.model.phone.PhoneDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,11 @@ public class CartPageController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String getCart(Model model) {
-        model.addAttribute("cart", cartService.getCart(httpSession));
+        Cart cart = cartService.getCart(httpSession);
+        if (cart.getTotalQuantity().intValue() == 0) {
+            model.addAttribute("isEmpty", env.getProperty("emptyCartMessage"));
+        }
+        model.addAttribute("cart", cart);
         return "cart";
     }
 
@@ -59,20 +64,24 @@ public class CartPageController {
             return prepareModelForEmptyCart(cart, model);
         }
         phoneArrayDTOValidator.validate(phoneArrayDTO, bindingResult);
+        List<Long> errorsId = new ArrayList<>();
         if (bindingResult.hasErrors()) {
-            return failedValidation(cart, bindingResult, model);
+            errorsId = failedValidation(bindingResult);
         }
         HashMap<Long, Long> idQuantityMap = new HashMap<>();
-        IntStream.range(0, phoneArrayDTO.getQuantity().length - 1).forEach(i -> {
-            idQuantityMap.put(Long.parseLong(phoneArrayDTO.getPhoneId()[i]),
-                    Long.parseLong(phoneArrayDTO.getQuantity()[i]));
+        List<Long> finalErrorsId = errorsId;
+        IntStream.range(0, phoneArrayDTO.getQuantity().length).forEach(i -> {
+            Long id = Long.parseLong(phoneArrayDTO.getPhoneId()[i]);
+            if (!finalErrorsId.contains(id)) {
+                idQuantityMap.put(id, Long.parseLong(phoneArrayDTO.getQuantity()[i]));
+            }
         });
-        List<Phone> outOfStockPhones = cartService.update(idQuantityMap, cart);
-        if (outOfStockPhones.isEmpty()) {
+        List<Phone> outOfStockPhones = cartService.checkOutOfStock(idQuantityMap, cart);
+        if (outOfStockPhones.isEmpty() && errorsId.isEmpty()) {
             model.addAttribute("message", env.getProperty("updateCartMessageSuccess"));
+            cartService.update(idQuantityMap, cart);
         } else {
-            model.addAttribute("outOfStockPhones", outOfStockPhones);
-            model.addAttribute("error", env.getProperty("updateCartMessageError"));
+            prepareModelForErrors(model, errorsId, outOfStockPhones);
         }
         model.addAttribute("cart", cart);
         return "cart";
@@ -87,6 +96,9 @@ public class CartPageController {
         }
         if (currentPhone.isPresent()) {
             cartService.remove(id, cart);
+            if (cart.getCartItems().isEmpty()) {
+                return prepareModelForEmptyCart(cart, model);
+            }
             model.addAttribute("message", env.getProperty("deleteFromCartMessage"));
             model.addAttribute("cart", cart);
         } else {
@@ -96,20 +108,22 @@ public class CartPageController {
     }
 
     private String prepareModelForEmptyCart(Cart cart, Model model) {
-        model.addAttribute("error", env.getProperty("emptyCartMessage"));
+        model.addAttribute("isEmpty", env.getProperty("emptyCartMessage"));
         model.addAttribute("cart", cart);
         return "cart";
     }
 
-    private String failedValidation(Cart cart, BindingResult bindingResult, Model model) {
+    private void prepareModelForErrors(Model model, List<Long> errorsId, List<Phone> outOfStockPhones) {
+        model.addAttribute("errorsId", errorsId);
+        model.addAttribute("outOfStockPhones", outOfStockPhones);
+        model.addAttribute("error", env.getProperty("updateCartMessageError"));
+    }
+
+    private List<Long> failedValidation(BindingResult bindingResult) {
         List<FieldError> errors = bindingResult.getFieldErrors("quantity");
-        List<Long> errorsId = errors.stream()
+        return errors.stream()
                 .map(item -> Long.parseLong(item.getCode()))
                 .collect(Collectors.toList());
-        model.addAttribute("cart", cart);
-        model.addAttribute("errorsId", errorsId);
-        model.addAttribute("error", env.getProperty("updateCartMessageError"));
-        return "cart";
     }
 
     @ExceptionHandler(NoElementWithSuchIdException.class)

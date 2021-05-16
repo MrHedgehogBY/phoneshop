@@ -7,6 +7,7 @@ import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneDao;
 import com.es.core.model.phone.Stock;
 import com.es.core.model.phone.StockDao;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -38,6 +39,10 @@ public class HttpSessionCartService implements CartService {
         return attribute;
     }
 
+    public void deleteCart(HttpSession httpSession) {
+        httpSession.removeAttribute(CART_SESSION_ATTRIBUTE);
+    }
+
     @Override
     public void addPhone(Long phoneId, Long quantity, Cart cart) throws OutOfStockException, EmptyDatabaseArgumentException {
         Optional<Phone> optionalPhone = jdbcPhoneDao.get(phoneId);
@@ -45,8 +50,8 @@ public class HttpSessionCartService implements CartService {
         if (optionalPhone.isPresent() && optionalStock.isPresent()) {
             Stock stock = optionalStock.get();
             Phone phone = optionalPhone.get();
-            if (stock.getStock() - stock.getReserved() >= quantity) {
-                addToCart(quantity, stock, phone, cart);
+            if (stock.getStock() >= quantity) {
+                addToCart(quantity, phone, cart);
             } else {
                 throw new OutOfStockException("Product is out of stock");
             }
@@ -56,7 +61,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public List<Phone> update(Map<Long, Long> items, Cart cart) {
+    public List<Phone> checkOutOfStock(Map<Long, Long> items, Cart cart) {
         List<Phone> outOfStockPhones = new ArrayList<>();
         items.keySet().stream()
                 .map(phoneId -> findSameCartItem(phoneId, cart))
@@ -65,19 +70,28 @@ public class HttpSessionCartService implements CartService {
                 .forEach(cartItem -> {
                     Long phoneId = cartItem.getPhone().getId();
                     Long quantity = items.get(cartItem.getPhone().getId());
-                    Long quantityDifference = quantity - cartItem.getQuantity();
-                    if (checkQuantity(phoneId, quantityDifference)) {
-                        cartItem.setQuantity(cartItem.getQuantity() + quantityDifference);
-                    } else {
+                    if (!checkQuantity(phoneId, quantity)) {
                         outOfStockPhones.add(cartItem.getPhone());
                     }
                 });
-        calculateCart(cart);
         return outOfStockPhones;
     }
 
     @Override
-    public void remove(Long phoneId, Cart cart) throws NoElementWithSuchIdException {
+    public void update(Map<Long, Long> items, Cart cart) {
+        items.keySet().stream()
+                .map(phoneId -> findSameCartItem(phoneId, cart))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(cartItem -> {
+                    Long quantity = items.get(cartItem.getPhone().getId());
+                    cartItem.setQuantity(quantity);
+                });
+        calculateCart(cart);
+    }
+
+    @Override
+    public void remove(Long phoneId, Cart cart) {
         Optional<CartItem> optionalCartItem = findSameCartItem(phoneId, cart);
         if (optionalCartItem.isPresent()) {
             cart.getCartItems().remove(optionalCartItem.get());
@@ -99,21 +113,33 @@ public class HttpSessionCartService implements CartService {
         cart.setTotalCost(totalCost);
     }
 
-    private boolean checkQuantity(Long phoneId, Long quantityDifference) {
+    @Override
+    public void checkCartItems(Cart cart) throws OutOfStockException {
+        List<Long> idsOutOfStock = new ArrayList<>();
+        cart.getCartItems().forEach(cartItem -> {
+            if (!checkQuantity(cartItem.getPhone().getId(), cartItem.getQuantity())) {
+                idsOutOfStock.add(cartItem.getPhone().getId());
+            }
+        });
+        if (CollectionUtils.isNotEmpty(idsOutOfStock)) {
+            idsOutOfStock.forEach(id -> remove(id, cart));
+            throw new OutOfStockException();
+        }
+    }
+
+    @Override
+    public boolean checkQuantity(Long phoneId, Long quantity) {
         Optional<Stock> optionalStock = jdbcStockDao.get(phoneId);
         if (optionalStock.isPresent()) {
             Stock stock = optionalStock.get();
-            if (stock.getStock() - stock.getReserved() >= quantityDifference) {
-                jdbcStockDao.update(phoneId, stock.getStock() - quantityDifference,
-                        stock.getReserved() + quantityDifference);
+            if (stock.getStock() >= quantity) {
                 return true;
             }
         }
         return false;
     }
 
-    private void addToCart(Long quantity, Stock stock, Phone phone, Cart cart) {
-        jdbcStockDao.update(phone.getId(), stock.getStock() - quantity, stock.getReserved() + quantity);
+    private void addToCart(Long quantity, Phone phone, Cart cart) {
         Optional<CartItem> optionalCartItem = findSameCartItem(phone.getId(), cart);
         if (optionalCartItem.isPresent()) {
             CartItem existsItem = optionalCartItem.get();
