@@ -14,7 +14,9 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -52,7 +54,8 @@ public class JdbcOrderDaoIntTest {
         phone.setModel(model);
         phone.setId(id);
         order = new Order();
-        order.setDate(new Timestamp(System.currentTimeMillis()));
+        order.setOrderPlacingDate(LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)));
         order.setStatus(OrderStatus.NEW);
         orderItem = new OrderItem(id, phone, order, quantity);
     }

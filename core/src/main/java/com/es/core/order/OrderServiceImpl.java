@@ -11,7 +11,9 @@ import com.es.core.model.phone.StockDao;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -37,7 +39,8 @@ public class OrderServiceImpl implements OrderService {
                 throw new NoElementWithSuchIdException(orderItem.getPhone().getId());
             }
         });
-        order.setDate(new Timestamp(System.currentTimeMillis()));
+        order.setOrderPlacingDate(LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)));
         return jdbcOrderDao.save(order);
     }
 }

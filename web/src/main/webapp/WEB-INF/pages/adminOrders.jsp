@@ -54,7 +54,7 @@
                     <c:out value="${order.deliveryAddress}"/>
                 </td>
                 <td>
-                    <c:out value="${order.date}"/>
+                    <c:out value="${order.orderPlacingDate}"/>
                 </td>
                 <td>
                     <c:out value="${order.totalPrice}"/> <spring:theme code="usd"/>

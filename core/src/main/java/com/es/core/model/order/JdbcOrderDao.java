@@ -29,11 +29,12 @@ public class JdbcOrderDao implements OrderDao {
     private static final String SQL_SELECT_FOR_GET = "select * from orders where id = ";
     private static final String SQL_SELECT_FOR_MAP_ROW = "select * from orderItems where orderId = ";
     private static final String SQL_SAVE_ORDER = "insert into orders (subtotal, deliveryPrice, totalPrice, firstName," +
-            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, date, status) " +
+            " lastName, deliveryAddress, contactPhoneNo, additionalInformation, orderPlacingDate, status) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_SAVE_ORDER_ITEM = "insert into orderItems (phoneId, orderId, quantity) " +
             "values (?, ?, ?)";
-    private static final String SQL_FIND_ALL_ORDERS = "select * from orders order by date desc offset %d limit %d";
+    private static final String SQL_FIND_ALL_ORDERS =
+            "select * from orders order by orderPlacingDate desc offset %d limit %d";
     private static final String SQL_COUNT_ALL_ORDERS = "select count(*) from orders";
     private static final String SQL_UPDATE_ORDER_STATUS = "update orders set status = ? where id = ?";
 
@@ -48,7 +49,7 @@ public class JdbcOrderDao implements OrderDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         Object[] orderParams = new Object[]{order.getSubtotal(), order.getDeliveryPrice(), order.getTotalPrice(),
                 order.getFirstName(), order.getLastName(), order.getDeliveryAddress(), order.getContactPhoneNo(),
-                order.getAdditionalInformation(), order.getDate(), order.getStatus().toString()};
+                order.getAdditionalInformation(), order.getOrderPlacingDate(), order.getStatus().toString()};
         jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SAVE_ORDER);
             for (int i = 1; i <= orderParams.length; i++) {
