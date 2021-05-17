@@ -132,9 +132,7 @@ public class HttpSessionCartService implements CartService {
         Optional<Stock> optionalStock = jdbcStockDao.get(phoneId);
         if (optionalStock.isPresent()) {
             Stock stock = optionalStock.get();
-            if (stock.getStock() >= quantity) {
-                return true;
-            }
+            return stock.getStock() >= quantity;
         }
         return false;
     }
