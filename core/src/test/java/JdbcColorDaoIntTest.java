@@ -1,5 +1,5 @@
-import com.es.core.model.phone.Color;
-import com.es.core.model.phone.JdbcColorDao;
+import com.es.core.model.color.Color;
+import com.es.core.model.color.JdbcColorDao;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

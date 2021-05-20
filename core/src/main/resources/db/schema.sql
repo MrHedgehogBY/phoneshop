@@ -4,6 +4,8 @@ drop table if exists stocks;
 drop table if exists phones;
 drop table if exists orders;
 drop table if exists orderItems;
+drop table if exists users;
+drop table if exists authorities;
 
 create table colors (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -77,4 +79,19 @@ create table orderItems (
   quantity BIGINT NOT NULL,
   CONSTRAINT FK_orderItems_phoneId FOREIGN KEY (phoneId) REFERENCES phones (id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT FK_orderItems_orderId FOREIGN KEY (orderId) REFERENCES orders (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+create table users (
+  id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL,
+  password VARCHAR(50) NOT NULL,
+  enabled BOOLEAN NOT NULL
+);
+
+create table authorities (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    userId BIGINT NOT NULL,
+    authority VARCHAR(50) NOT NULL,
+    CONSTRAINT fk_authorities_users FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE KEY username_authorities_unique (userId, authority)
 );

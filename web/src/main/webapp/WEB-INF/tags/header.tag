@@ -1,6 +1,6 @@
 <%@ tag trimDirectiveWhitespaces="true" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ attribute name="cart" type="com.es.core.cart.Cart" required="true" %>
+<%@ attribute name="cart" type="com.es.core.model.cart.Cart" required="true" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 

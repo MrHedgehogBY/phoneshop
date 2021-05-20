@@ -2,10 +2,9 @@ package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.order.Order;
-import com.es.core.model.order.OrderDao;
+import com.es.core.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
-import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/orderOverview")
@@ -24,17 +22,12 @@ public class OrderOverviewPageController {
     private Environment env;
 
     @Resource
-    private OrderDao jdbcOrderDao;
+    private OrderService orderService;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String getOrderOverview(@PathVariable("id") String id, Model model) {
-        Optional<Order> currentOrder;
-        try {
-            currentOrder = jdbcOrderDao.get(Long.valueOf(id));
-            currentOrder.ifPresent(order -> model.addAttribute("order", order));
-        } catch (NumberFormatException | EmptyResultDataAccessException e) {
-            throw new NoElementWithSuchIdException(id);
-        }
+        Order order = orderService.getOrder(id);
+        model.addAttribute("order", order);
         return "orderOverview";
     }
 

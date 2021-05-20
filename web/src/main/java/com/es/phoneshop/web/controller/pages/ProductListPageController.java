@@ -1,9 +1,9 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.cart.CartService;
-import com.es.core.filter.FilterService;
 import com.es.core.model.phone.Phone;
-import com.es.core.model.phone.PhoneDao;
+import com.es.core.service.cart.CartService;
+import com.es.core.service.filter.FilterService;
+import com.es.core.service.phone.PhoneService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ProductListPageController {
 
     @Resource
-    private PhoneDao phoneDao;
+    private PhoneService phoneService;
 
     @Resource
     private CartService cartService;
@@ -47,9 +47,9 @@ public class ProductListPageController {
         }
         field = filterServiceImpl.checkFieldValue(field);
         order = filterServiceImpl.checkOrderValue(order);
-        List<Phone> phoneList = phoneDao.findAll(search, field, order, ((Long) ((page - 1) * quantityOnPage)).intValue(),
-                quantityOnPage.intValue());
-        Long phoneQuantity = phoneDao.count(search, field, order, ((Long) ((page - 1) * quantityOnPage)).intValue(),
+        List<Phone> phoneList = phoneService.findAllPhones(search, field, order,
+                ((Long) ((page - 1) * quantityOnPage)).intValue(), quantityOnPage.intValue());
+        Long phoneQuantity = phoneService.countPhones(search, field, order, ((Long) ((page - 1) * quantityOnPage)).intValue(),
                 quantityOnPage.intValue());
         Long lastPage;
         Long pagesQuantity = phoneQuantity / quantityOnPage;
@@ -59,6 +59,5 @@ public class ProductListPageController {
         model.addAttribute("pages", lastPage);
         model.addAttribute("phoneQuantity", phoneQuantity);
         return "productList";
-
     }
 }

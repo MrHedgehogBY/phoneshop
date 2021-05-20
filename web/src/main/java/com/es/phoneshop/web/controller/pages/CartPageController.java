@@ -1,11 +1,11 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.cart.Cart;
-import com.es.core.cart.CartService;
+import com.es.core.model.cart.Cart;
+import com.es.core.service.cart.CartService;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneArrayDTO;
-import com.es.core.model.phone.PhoneDao;
+import com.es.core.service.phone.PhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +41,7 @@ public class CartPageController {
     private Environment env;
 
     @Resource
-    private PhoneDao jdbcPhoneDao;
+    private PhoneService phoneService;
 
     @Resource
     private CartService cartService;
@@ -93,21 +92,17 @@ public class CartPageController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     public String deleteFromCart(@PathVariable("id") Long id, Model model) throws NoElementWithSuchIdException {
-        Optional<Phone> currentPhone = jdbcPhoneDao.get(id);
+        Phone currentPhone = phoneService.getPhone(id.toString());
         Cart cart = cartService.getCart(httpSession);
         if (cart.getCartItems().isEmpty()) {
             return prepareModelForEmptyCart(cart, model);
         }
-        if (currentPhone.isPresent()) {
-            cartService.remove(id, cart);
-            if (cart.getCartItems().isEmpty()) {
-                return prepareModelForEmptyCart(cart, model);
-            }
-            model.addAttribute("message", env.getProperty("deleteFromCartMessage"));
-            model.addAttribute("cart", cart);
-        } else {
-            throw new NoElementWithSuchIdException(id.toString());
+        cartService.remove(currentPhone.getId(), cart);
+        if (cart.getCartItems().isEmpty()) {
+            return prepareModelForEmptyCart(cart, model);
         }
+        model.addAttribute("message", env.getProperty("deleteFromCartMessage"));
+        model.addAttribute("cart", cart);
         return "cart";
     }
 
