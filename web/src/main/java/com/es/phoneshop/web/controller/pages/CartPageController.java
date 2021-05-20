@@ -15,7 +15,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -102,7 +106,7 @@ public class CartPageController {
             model.addAttribute("message", env.getProperty("deleteFromCartMessage"));
             model.addAttribute("cart", cart);
         } else {
-            throw new NoElementWithSuchIdException(id);
+            throw new NoElementWithSuchIdException(id.toString());
         }
         return "cart";
     }

@@ -8,6 +8,10 @@
 
     <import resource="classpath:context/applicationContext-core.xml"/>
     <import resource="classpath:context/applicationContext-demoda.xml"/>
+    <import resource="securityContext.xml"/>
+
+    <bean id="webExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
     <bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource">
         <property name="basenamePrefix" value="lang-"/>

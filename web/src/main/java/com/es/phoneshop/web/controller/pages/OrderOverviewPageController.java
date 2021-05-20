@@ -5,6 +5,7 @@ import com.es.core.model.order.Order;
 import com.es.core.model.order.OrderDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,11 +27,12 @@ public class OrderOverviewPageController {
     private OrderDao jdbcOrderDao;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String getOrderOverview(@PathVariable("id") Long id, Model model) {
-        Optional<Order> currentOrder = jdbcOrderDao.get(id);
-        if (currentOrder.isPresent()) {
-            model.addAttribute("order", currentOrder.get());
-        } else {
+    public String getOrderOverview(@PathVariable("id") String id, Model model) {
+        Optional<Order> currentOrder;
+        try {
+            currentOrder = jdbcOrderDao.get(Long.valueOf(id));
+            currentOrder.ifPresent(order -> model.addAttribute("order", order));
+        } catch (NumberFormatException | EmptyResultDataAccessException e) {
             throw new NoElementWithSuchIdException(id);
         }
         return "orderOverview";

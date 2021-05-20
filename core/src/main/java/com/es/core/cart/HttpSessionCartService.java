@@ -96,7 +96,7 @@ public class HttpSessionCartService implements CartService {
         if (optionalCartItem.isPresent()) {
             cart.getCartItems().remove(optionalCartItem.get());
         } else {
-            throw new NoElementWithSuchIdException(phoneId);
+            throw new NoElementWithSuchIdException(phoneId.toString());
         }
         calculateCart(cart);
     }

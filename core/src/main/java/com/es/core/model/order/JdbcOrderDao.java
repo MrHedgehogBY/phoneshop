@@ -99,7 +99,7 @@ public class JdbcOrderDao implements OrderDao {
                     orderItems.add(new OrderItem(orderItemBuffer.getId(), optionalPhone.get(), order,
                             orderItemBuffer.getQuantity()));
                 } else {
-                    throw new NoElementWithSuchIdException(orderItemBuffer.getPhoneId());
+                    throw new NoElementWithSuchIdException(orderItemBuffer.getPhoneId().toString());
                 }
             });
             order.setOrderItems(orderItems);

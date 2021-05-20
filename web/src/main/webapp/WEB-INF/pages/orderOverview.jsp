@@ -102,7 +102,7 @@
         </tr>
     </table>
     <br>
-    <table id="customer-table">
+    <table class="no-border-table">
         <tags:orderOverviewRow label="firstNameOrder" item="${order.firstName}"/>
         <tags:orderOverviewRow label="lastNameOrder" item="${order.lastName}"/>
         <tags:orderOverviewRow label="addressOrder" item="${order.deliveryAddress}"/>

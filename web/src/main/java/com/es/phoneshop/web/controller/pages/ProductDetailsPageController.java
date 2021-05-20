@@ -6,6 +6,7 @@ import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,12 +35,13 @@ public class ProductDetailsPageController {
     private HttpSession httpSession;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String showProductDetails(@PathVariable("id") Long id, Model model) throws NoElementWithSuchIdException {
-        Optional<Phone> currentPhone = jdbcPhoneDao.get(id);
-        model.addAttribute("cart", cartService.getCart(httpSession));
-        if (currentPhone.isPresent()) {
-            model.addAttribute("phone", currentPhone.get());
-        } else {
+    public String showProductDetails(@PathVariable("id") String id, Model model) throws NoElementWithSuchIdException {
+        Optional<Phone> currentPhone;
+        try {
+            currentPhone = jdbcPhoneDao.get(Long.valueOf(id));
+            model.addAttribute("cart", cartService.getCart(httpSession));
+            currentPhone.ifPresent(phone -> model.addAttribute("phone", phone));
+        } catch (NumberFormatException | EmptyResultDataAccessException e) {
             throw new NoElementWithSuchIdException(id);
         }
         return "productDetails";

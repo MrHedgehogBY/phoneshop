@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
                 jdbcStockDao.update(orderItem.getPhone().getId(), stock.getStock() - orderItem.getQuantity(),
                         stock.getReserved().longValue());
             } else {
-                throw new NoElementWithSuchIdException(orderItem.getPhone().getId());
+                throw new NoElementWithSuchIdException(orderItem.getPhone().getId().toString());
             }
         });
         order.setOrderPlacingDate(LocalDate.now()
