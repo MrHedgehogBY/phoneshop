@@ -23,8 +23,11 @@
             <jdbc-user-service
                     data-source-ref="dataSource"
                     users-by-username-query="select username, password, enabled from users where username = ?"
-                    authorities-by-username-query="select u.username, au.authority from users u, authorities au
-       	                                                where u.id = au.userId and u.username = ?"
+                    authorities-by-username-query="select users.username as username, authorities.authority as authority
+                                                   from users
+                                                   inner join user2role on users.id = user2role.userId
+                                                   inner join authorities on user2role.authId = authorities.id
+                                                   where users.username = ?"
             />
         </authentication-provider>
     </authentication-manager>
