@@ -1,6 +1,6 @@
 package com.es.core.model.order;
 
-import com.es.core.cart.Cart;
+import com.es.core.model.cart.Cart;
 
 import java.math.BigDecimal;
 

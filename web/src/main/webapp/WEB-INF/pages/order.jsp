@@ -111,7 +111,7 @@
     </table>
     <br>
     <form:form method="post" action="${pageContext.request.contextPath}/order" modelAttribute="orderDataDTO">
-        <table id="customer-table">
+        <table class="no-border-table">
             <tags:orderRow label="firstNameOrder" id="first-name" name="firstName" errors="${errors}"/>
             <tags:orderRow label="lastNameOrder" id="last-name" name="lastName" errors="${errors}"/>
             <tags:orderRow label="addressOrder" id="address" name="address" errors="${errors}"/>

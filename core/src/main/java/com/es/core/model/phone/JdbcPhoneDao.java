@@ -1,5 +1,7 @@
 package com.es.core.model.phone;
 
+import com.es.core.model.color.Color;
+import com.es.core.model.color.JdbcColorDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;

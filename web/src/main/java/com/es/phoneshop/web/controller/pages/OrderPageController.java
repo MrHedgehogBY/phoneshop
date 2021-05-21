@@ -1,11 +1,11 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.cart.Cart;
-import com.es.core.cart.CartService;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.exception.OutOfStockException;
+import com.es.core.model.cart.Cart;
 import com.es.core.model.order.OrderDataDTO;
-import com.es.core.order.OrderService;
+import com.es.core.service.cart.CartService;
+import com.es.core.service.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;

@@ -2,6 +2,10 @@
     color: green;
 }
 
+#login-error {
+    color: red;
+}
+
 .result-for-item {
     color: red;
 }
@@ -94,11 +98,11 @@ td {
     margin-right: 10px;
 }
 
-#customer-table {
+.no-border-table {
     border: 0;
 }
 
-.customer-td {
+.no-border-td {
     border: 0;
 }
 
@@ -115,6 +119,32 @@ td {
 
 .required {
     color: red;
+}
+
+#auth-and-cart {
+    display: flex;
+    flex-direction: column;
+}
+
+#auth-header-part {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+#form-for-cart {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#nickname-span {
+    margin-right: 10px;
+}
+
+#admin-orders-link {
+    margin-right: 10px;
 }
 
 .admin-order-details-under-head {

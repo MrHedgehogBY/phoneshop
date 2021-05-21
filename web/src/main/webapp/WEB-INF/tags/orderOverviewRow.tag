@@ -5,6 +5,6 @@
 <%@ attribute name="item" required="true" %>
 
 <tr>
-    <td class="customer-td"><span><spring:theme code="${label}"/></span></td>
-    <td class="customer-td"><span><c:out value="${item}"/></span></td>
+    <td class="no-border-td"><span><spring:theme code="${label}"/></span></td>
+    <td class="no-border-td"><span><c:out value="${item}"/></span></td>
 </tr>

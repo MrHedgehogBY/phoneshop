@@ -2,17 +2,17 @@ package com.es.core.exception;
 
 public class NoElementWithSuchIdException extends RuntimeException {
 
-    private Long id;
+    private String id;
 
-    public NoElementWithSuchIdException(Long id) {
+    public NoElementWithSuchIdException(String id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 }

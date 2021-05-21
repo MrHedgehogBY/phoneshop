@@ -7,8 +7,8 @@
 <%@ attribute name="errors" required="true" type="org.springframework.validation.BindingResult" %>
 
 <tr>
-    <td class="customer-td"><label for="${id}"><spring:theme code="${label}"/></label><span class="required">*</span></td>
-    <td class="customer-td">
+    <td class="no-border-td"><label for="${id}"><spring:theme code="${label}"/></label><span class="required">*</span></td>
+    <td class="no-border-td">
         <input id="${id}" type="text" name="${name}" value="${param.get(name)}"/><br>
         <div class="result-for-item">
             <c:if test="${not empty errors.getFieldErrors(name)}">

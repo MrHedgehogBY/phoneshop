@@ -1,9 +1,9 @@
 package com.es.phoneshop.web.controller.pages;
 
-import com.es.core.cart.CartService;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
-import com.es.core.model.phone.PhoneDao;
+import com.es.core.service.cart.CartService;
+import com.es.core.service.phone.PhoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 @Controller
 @RequestMapping(value = "/productDetails/{id}")
@@ -25,7 +24,7 @@ public class ProductDetailsPageController {
     private Environment env;
 
     @Resource
-    private PhoneDao jdbcPhoneDao;
+    private PhoneService phoneService;
 
     @Resource
     private CartService cartService;
@@ -34,14 +33,10 @@ public class ProductDetailsPageController {
     private HttpSession httpSession;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String showProductDetails(@PathVariable("id") Long id, Model model) throws NoElementWithSuchIdException {
-        Optional<Phone> currentPhone = jdbcPhoneDao.get(id);
+    public String showProductDetails(@PathVariable("id") String id, Model model) throws NoElementWithSuchIdException {
+        Phone currentPhone = phoneService.getPhone(id);
         model.addAttribute("cart", cartService.getCart(httpSession));
-        if (currentPhone.isPresent()) {
-            model.addAttribute("phone", currentPhone.get());
-        } else {
-            throw new NoElementWithSuchIdException(id);
-        }
+        model.addAttribute("phone", currentPhone);
         return "productDetails";
     }
 
