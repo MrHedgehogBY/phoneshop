@@ -139,7 +139,8 @@ public class HttpSessionCartServiceImpl implements CartService {
         return false;
     }
 
-    private void addToCart(Long quantity, Phone phone, Cart cart) {
+    @Override
+    public void addToCart(Long quantity, Phone phone, Cart cart) {
         Optional<CartItem> optionalCartItem = findSameCartItem(phone.getId(), cart);
         if (optionalCartItem.isPresent()) {
             CartItem existsItem = optionalCartItem.get();

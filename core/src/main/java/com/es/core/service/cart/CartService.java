@@ -27,6 +27,8 @@ public interface CartService {
 
     void calculateCart(Cart cart);
 
+    void addToCart(Long quantity, Phone phone, Cart cart);
+
     void checkCartItems(Cart cart) throws OutOfStockException;
 
     boolean checkQuantity(Long phoneId, Long quantity);
