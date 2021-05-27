@@ -99,30 +99,20 @@ public class HttpSessionCartServiceImplTest {
     }
 
     @Test
-    public void testRemove() throws NoElementWithSuchIdException {
-        httpSessionCartService.remove(phone.getId(), cart);
+    public void testRemovePhone() throws NoElementWithSuchIdException {
+        httpSessionCartService.removePhone(phone.getId(), cart);
         assertEquals(cart.getTotalCost(), BigDecimal.valueOf(0L));
     }
 
     @Test(expected = NoElementWithSuchIdException.class)
-    public void testRemoveThrowsException() throws NoElementWithSuchIdException {
-        httpSessionCartService.remove(incorrectId, cart);
-    }
-
-    @Test
-    public void testUpdate() {
-        updateMap.put(phone.getId(), newQuantity);
-        when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        List<Phone> outOfStockPhones = httpSessionCartService.checkOutOfStock(updateMap, cart);
-        httpSessionCartService.update(updateMap, cart);
-        assertEquals(cart.getTotalCost(), BigDecimal.valueOf(500L));
-        assertTrue(outOfStockPhones.isEmpty());
+    public void testRemovePhoneThrowsException() throws NoElementWithSuchIdException {
+        httpSessionCartService.removePhone(incorrectId, cart);
     }
 
     @Test
     public void testCheckCartItems() throws OutOfStockException {
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        httpSessionCartService.checkCartItems(cart);
+        httpSessionCartService.checkCartItemsForOutOfStock(cart);
     }
 
     @Test(expected = OutOfStockException.class)
@@ -130,6 +120,6 @@ public class HttpSessionCartServiceImplTest {
         cart.getCartItems().get(0).setQuantity(newQuantityForOutOfStock);
         cart.setTotalQuantity(newQuantityForOutOfStock);
         when(jdbcStockDao.get(anyLong())).thenReturn(Optional.of(stock));
-        httpSessionCartService.checkCartItems(cart);
+        httpSessionCartService.checkCartItemsForOutOfStock(cart);
     }
 }

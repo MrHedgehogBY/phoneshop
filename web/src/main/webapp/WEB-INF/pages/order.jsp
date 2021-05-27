@@ -20,8 +20,8 @@
         <spring:theme code="titleOrder"/>
     </h3>
     <div id="error-result">
-        <c:if test="${not empty error}">
-            <c:out value="${error}"/>
+        <c:if test="${not empty emptyCartMessage}">
+            <c:out value="${emptyCartMessage}"/>
         </c:if>
     </div>
     <br>
@@ -110,16 +110,14 @@
         </tr>
     </table>
     <br>
-    <form:form method="post" action="${pageContext.request.contextPath}/order" modelAttribute="orderDataDTO">
+    <form:form method="post" action="${pageContext.request.contextPath}/order" commandName="orderDataDTO">
         <table class="no-border-table">
-            <tags:orderRow label="firstNameOrder" id="first-name" name="firstName" errors="${errors}"/>
-            <tags:orderRow label="lastNameOrder" id="last-name" name="lastName" errors="${errors}"/>
-            <tags:orderRow label="addressOrder" id="address" name="address" errors="${errors}"/>
-            <tags:orderRow label="phoneOrder" id="phone" name="phone" errors="${errors}"/>
+            <tags:orderRow label="firstNameOrder" id="first-name" name="firstName"/>
+            <tags:orderRow label="lastNameOrder" id="last-name" name="lastName"/>
+            <tags:orderRow label="addressOrder" id="address" name="address"/>
+            <tags:orderRow label="phoneOrder" id="phone" name="phone"/>
         </table>
-        <textarea id="add-info-to-order" name="additionalInformation" placeholder="Additional information" maxlength="500">
-            <c:out value="${param.get('additionalInformation')}"/>
-        </textarea>
+        <form:textarea path="additionalInformation" id="add-info-to-order" name="additionalInformation" placeholder="Additional information" maxlength="500"/>
         <br>
         <button class="buttons">
             <spring:theme code="order"/>
