@@ -2,9 +2,9 @@ package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.PhoneDTO;
 import com.es.core.service.cart.CartService;
 import com.es.core.service.phone.PhoneService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
 @RequestMapping(value = "/productDetails/{id}")
 public class ProductDetailsPageController {
 
-    @Autowired
+    @Resource
     private Environment env;
 
     @Resource
@@ -37,6 +37,7 @@ public class ProductDetailsPageController {
         Phone currentPhone = phoneService.getPhone(id);
         model.addAttribute("cart", cartService.getCart(httpSession));
         model.addAttribute("phone", currentPhone);
+        model.addAttribute("phoneDTO", new PhoneDTO());
         return "productDetails";
     }
 

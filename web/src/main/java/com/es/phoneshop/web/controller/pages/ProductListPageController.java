@@ -1,6 +1,7 @@
 package com.es.phoneshop.web.controller.pages;
 
 import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.PhoneDTO;
 import com.es.core.service.cart.CartService;
 import com.es.core.service.filter.FilterService;
 import com.es.core.service.phone.PhoneService;
@@ -58,6 +59,7 @@ public class ProductListPageController {
         model.addAttribute("cart", cartService.getCart(httpSession));
         model.addAttribute("pages", lastPage);
         model.addAttribute("phoneQuantity", phoneQuantity);
+        model.addAttribute("phoneDTO", new PhoneDTO());
         return "productList";
     }
 }

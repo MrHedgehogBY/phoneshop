@@ -9,42 +9,38 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/styles/main.css">
 </head>
 <body>
-    <table>
+    <table class="no-border-table">
         <thead>
             <tr>
-                <td>Product code</td>
-                <td>Quantity</td>
+                <td class="no-border-td">Product code</td>
+                <td class="no-border-td">Quantity</td>
             </tr>
         </thead>
-        <c:forEach var="id" items="${successMessage}">
+        <c:forEach var="id" items="${addedToCartProductIds}">
             <div id="success-result">
                 ${id} product added successfully
             </div>
         </c:forEach>
         <br>
-        <form:form id="b2b-form" method="post" action="${pageContext.request.contextPath}/b2b" modelAttribute="b2bCartDTO">
-            <c:forEach var="i" begin="0" end="7" varStatus="status">
+        <form:form id="b2b-form" method="post" action="${pageContext.request.contextPath}/b2b" commandName="b2bCartDTO">
+            <c:forEach var="i" begin="0" end="7">
                 <tr>
-                    <td>
-                        <input id="code" name="code" value="${fn:contains(errorsCode, i) or fn:contains(errorsQuantity, i) ? paramValues['code'][status.index] : ""}">
-                        <c:if test="${fn:contains(errorsCode, i)}">
-                            <div class="result-for-item">
-                                Product not found
-                            </div>
-                        </c:if>
+                    <td class="no-border-td">
+                        <form:input path="b2bCartItems[${i}].id" />
+                        <div>
+                            <form:errors path="b2bCartItems[${i}].id" cssClass="result-for-item"/>
+                        </div>
                     </td>
-                    <td>
-                        <input id="quantity" name="quantity" value="${fn:contains(errorsCode, i) or fn:contains(errorsQuantity, i) ? paramValues['quantity'][status.index] : ""}">
-                        <c:if test="${fn:contains(errorsQuantity, i)}">
-                            <div class="result-for-item">
-                                Not a number or out of stock
-                            </div>
-                        </c:if>
+                    <td class="no-border-td">
+                        <form:input path="b2bCartItems[${i}].quantity" />
+                        <div>
+                            <form:errors path="b2bCartItems[${i}].quantity" cssClass="result-for-item"/>
+                        </div>
                     </td>
                 </tr>
             </c:forEach>
             <tr>
-                <td>
+                <td class="no-border-td">
                     <button class="buttons" form="b2b-form">
                         Add 2 cart
                     </button>

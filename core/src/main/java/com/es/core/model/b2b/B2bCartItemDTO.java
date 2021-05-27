@@ -1,25 +1,13 @@
-package com.es.core.model.phone;
+package com.es.core.model.b2b;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
-public class PhoneDTO {
+public class B2bCartItemDTO {
 
-    @NotNull
     private Long id;
 
     @Min(value = 1L)
-    @NotNull
     private Long quantity;
-
-    public PhoneDTO() {
-
-    }
-
-    public PhoneDTO(Long id, Long quantity) {
-        this.id = id;
-        this.quantity = quantity;
-    }
 
     public Long getId() {
         return id;

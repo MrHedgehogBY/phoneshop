@@ -1,4 +1,4 @@
-package com.es.core.validator;
+package com.es.core.ajaxhandling;
 
 import org.springframework.validation.ObjectError;
 

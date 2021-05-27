@@ -1,20 +1,19 @@
 package com.es.phoneshop.web.controller.pages;
 
+import com.es.core.exception.EmptyDatabaseArgumentException;
+import com.es.core.exception.OutOfStockException;
 import com.es.core.model.cart.Cart;
+import com.es.core.model.phone.PhoneDTO;
 import com.es.core.service.cart.CartService;
 import com.es.core.exception.NoElementWithSuchIdException;
 import com.es.core.model.phone.Phone;
 import com.es.core.model.phone.PhoneArrayDTO;
 import com.es.core.service.phone.PhoneService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.Validator;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,10 +22,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Controller
@@ -34,10 +32,7 @@ import java.util.stream.IntStream;
 @RequestMapping(value = "/cart")
 public class CartPageController {
 
-    @Resource(name = "phoneArrayDTOValidator")
-    private Validator phoneArrayDTOValidator;
-
-    @Autowired
+    @Resource
     private Environment env;
 
     @Resource
@@ -56,37 +51,26 @@ public class CartPageController {
             model.addAttribute("isEmpty", env.getProperty("emptyCartMessage"));
         }
         model.addAttribute("cart", cart);
+        model.addAttribute("phoneArrayDTO", new PhoneArrayDTO(cart.getCartItems()));
         return "cart";
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public String updateCart(@Validated @ModelAttribute(name = "phoneArrayDTO") PhoneArrayDTO phoneArrayDTO,
-                             Model model, BindingResult bindingResult) {
+    public String updateCart(@Valid @ModelAttribute(name = "phoneArrayDTO") PhoneArrayDTO phoneArrayDTO,
+                             BindingResult bindingResult, Model model) {
         Cart cart = cartService.getCart(httpSession);
-        if (cart.getCartItems().isEmpty()) {
-            return prepareModelForEmptyCart(cart, model);
-        }
-        phoneArrayDTOValidator.validate(phoneArrayDTO, bindingResult);
-        List<Long> errorsId = new ArrayList<>();
-        if (bindingResult.hasErrors()) {
-            errorsId = failedValidation(bindingResult);
-        }
-        HashMap<Long, Long> idQuantityMap = new HashMap<>();
-        List<Long> finalErrorsId = errorsId;
-        IntStream.range(0, phoneArrayDTO.getQuantity().length).forEach(i -> {
-            Long id = Long.parseLong(phoneArrayDTO.getPhoneId()[i]);
-            if (!finalErrorsId.contains(id)) {
-                idQuantityMap.put(id, Long.parseLong(phoneArrayDTO.getQuantity()[i]));
+        List<Long> updatedPhoneIds = new ArrayList<>();
+        IntStream.range(0, phoneArrayDTO.getPhoneDTOItems().size()).forEach(i -> {
+            PhoneDTO currentPhoneDTO = phoneArrayDTO.getPhoneDTOItems().get(i);
+            if (bindingResult.getFieldErrors("phoneDTOItems[" + i + "].id").isEmpty()
+                    && bindingResult.getFieldErrors("phoneDTOItems[" + i + "].quantity").isEmpty()) {
+                updateItemInCart(currentPhoneDTO, cart, bindingResult, i, updatedPhoneIds);
             }
         });
-        List<Phone> outOfStockPhones = cartService.checkOutOfStock(idQuantityMap, cart);
-        if (outOfStockPhones.isEmpty() && errorsId.isEmpty()) {
-            model.addAttribute("message", env.getProperty("updateCartMessageSuccess"));
-            cartService.update(idQuantityMap, cart);
-        } else {
-            prepareModelForErrors(model, errorsId, outOfStockPhones);
-        }
         model.addAttribute("cart", cart);
+        model.addAttribute("updatedPhoneIds", updatedPhoneIds);
+        model.addAttribute("successfulUpdateMessage", env.getProperty("successfulUpdateMessage"));
+        model.addAttribute("phoneArrayDTO", phoneArrayDTO);
         return "cart";
     }
 
@@ -97,32 +81,38 @@ public class CartPageController {
         if (cart.getCartItems().isEmpty()) {
             return prepareModelForEmptyCart(cart, model);
         }
-        cartService.remove(currentPhone.getId(), cart);
+        cartService.removePhone(currentPhone.getId(), cart);
         if (cart.getCartItems().isEmpty()) {
             return prepareModelForEmptyCart(cart, model);
         }
         model.addAttribute("message", env.getProperty("deleteFromCartMessage"));
+        model.addAttribute("phoneArrayDTO", new PhoneArrayDTO(cart.getCartItems()));
         model.addAttribute("cart", cart);
         return "cart";
+    }
+
+    private void updateItemInCart(PhoneDTO phoneDTO, Cart cart, BindingResult bindingResult,
+                                  int index, List<Long> updatedPhoneIds) {
+        Long id = phoneDTO.getId();
+        Long quantity = phoneDTO.getQuantity();
+        if (id != null && quantity != null) {
+            try {
+                cartService.updatePhone(id, quantity, cart);
+                updatedPhoneIds.add(id);
+            } catch (OutOfStockException e) {
+                bindingResult.rejectValue("phoneDTOItems[" + index + "].quantity",
+                        "OutOfStock.phoneArrayDTO.phoneDTOItems.quantity");
+            } catch (EmptyDatabaseArgumentException e) {
+                bindingResult.rejectValue("phoneDTOItems[" + index + "].id",
+                        "NoElement.phoneArrayDTO.phoneDTOItems.id");
+            }
+        }
     }
 
     private String prepareModelForEmptyCart(Cart cart, Model model) {
         model.addAttribute("isEmpty", env.getProperty("emptyCartMessage"));
         model.addAttribute("cart", cart);
         return "cart";
-    }
-
-    private void prepareModelForErrors(Model model, List<Long> errorsId, List<Phone> outOfStockPhones) {
-        model.addAttribute("errorsId", errorsId);
-        model.addAttribute("outOfStockPhones", outOfStockPhones);
-        model.addAttribute("error", env.getProperty("updateCartMessageError"));
-    }
-
-    private List<Long> failedValidation(BindingResult bindingResult) {
-        List<FieldError> errors = bindingResult.getFieldErrors("quantity");
-        return errors.stream()
-                .map(item -> Long.parseLong(item.getCode()))
-                .collect(Collectors.toList());
     }
 
     @ExceptionHandler(NoElementWithSuchIdException.class)

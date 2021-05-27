@@ -6,12 +6,10 @@ import com.es.core.model.cart.Cart;
 import com.es.core.model.order.OrderDataDTO;
 import com.es.core.service.cart.CartService;
 import com.es.core.service.order.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,7 +24,7 @@ import java.math.BigDecimal;
 @RequestMapping(value = "/order")
 public class OrderPageController {
 
-    @Autowired
+    @Resource
     private Environment env;
 
     @Resource
@@ -38,41 +36,27 @@ public class OrderPageController {
     @Resource
     private CartService cartService;
 
-    @Resource(name = "orderDataDTOValidator")
-    private Validator orderDataDTOValidator;
-
     @RequestMapping(method = RequestMethod.GET)
     public String getOrder(Model model) {
         Cart cart = cartService.getCart(httpSession);
+        model.addAttribute("orderDataDTO", new OrderDataDTO());
         prepareModelToShowCart(cart, model);
         return "order";
     }
 
     @RequestMapping(method = RequestMethod.POST)
     public String placeOrder(@Validated @ModelAttribute(name = "orderDataDTO") OrderDataDTO orderDataDTO,
-                             Model model, BindingResult bindingResult) throws OutOfStockException {
+                             BindingResult bindingResult, Model model) throws OutOfStockException {
         Cart cart = cartService.getCart(httpSession);
-        cartService.checkCartItems(cart);
+        cartService.checkCartItemsForOutOfStock(cart);
         if (cart.getCartItems().isEmpty()) {
-            return prepareModelForEmptyCart(cart, model);
+            model.addAttribute("emptyCartMessage", env.getProperty("emptyCartMessage"));
+            model.addAttribute("orderDataDTO", orderDataDTO);
+        } else if (!bindingResult.hasErrors()) {
+            Long id = orderService.placeOrder(cart, orderDataDTO, Long.parseLong(env.getProperty("delivery.price")));
+            cartService.deleteCart(httpSession);
+            return "redirect:/orderOverview/" + id;
         }
-        orderDataDTOValidator.validate(orderDataDTO, bindingResult);
-        if (bindingResult.hasErrors()) {
-            return prepareModelForValidationErrors(cart, model, bindingResult);
-        }
-        Long id = orderService.placeOrder(cart, orderDataDTO, Long.parseLong(env.getProperty("delivery.price")));
-        cartService.deleteCart(httpSession);
-        return "redirect:/orderOverview/" + id;
-    }
-
-    private String prepareModelForEmptyCart(Cart cart, Model model) {
-        model.addAttribute("error", env.getProperty("emptyCartMessage"));
-        prepareModelToShowCart(cart, model);
-        return "order";
-    }
-
-    private String prepareModelForValidationErrors(Cart cart, Model model, BindingResult bindingResult) {
-        model.addAttribute("errors", bindingResult);
         prepareModelToShowCart(cart, model);
         return "order";
     }
